@@ -5,6 +5,7 @@ import math
 import os
 import random
 
+import Menus
 import Settings
 import Functions
 import Messages
@@ -13,25 +14,10 @@ import Player
 import Sound
 
 class Game:
-	def __init__(self): # Initialization
+	def __init__(self, init):
 		self.gameOver = False
+		self.init = init
 
-		self.initScreen()
-
-		self.clock = pygame.time.Clock()
-
-		pygame.font.init()
-
-		self.text = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 16)
-		self.text2 = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 42)
-		self.text3 = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 32)
-		self.text4 = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 12)
-
-		self.messageBox = Messages.MessageBox()
-		self.infoOverlay = Messages.InfoOverlay()
-
-		if Settings.sound:
-			self.sound = Sound.Sound(self)
 
 		self.map = Map()
 
@@ -39,56 +25,11 @@ class Game:
 		self.players = []
 
 		for i in range(Settings.playerAmount-1,-1,-1):
-			self.players.append(Player.Player(self, Settings.keys[i], Settings.names[i], Settings.colors[i]))
+			self.players.append(Player.Player(self, Settings.keys[i], Settings.names[i], Settings.colors[i], self.init))
 
 		self.bonusTimer = Settings.bonusDelay
 
 		self.run()
-
-	def initScreen(self): # Create screen
-		pygame.display.init()
-
-		pygame.mouse.set_visible(False)
-
-		screenFlags = []
-
-		if Settings.fullscreen == 1:
-			screenFlags.append(pygame.FULLSCREEN)
-		elif Settings.fullscreen == 2:
-			screenFlags.append(pygame.NOFRAME)
-
-		if Settings.hwAcceleration:
-			screenFlags.append(pygame.HWSURFACE)
-
-		if Settings.doubleBuffering:
-			screenFlags.append(pygame.DOUBLEBUF)
-
-		screenFlagsCombined = 0
-		for flag in screenFlags:
-			screenFlagsCombined |= flag
-
-		pygame.display.set_caption("War of Pixelords")
-		pygame.display.set_icon(pygame.image.load(os.path.join("gfx","default","ship2.png")))
-
-		if Settings.scale != 1:
-			if Settings.scaleType == 2:
-				Settings.scale = 2**int(math.log(Settings.scale,2))
-			self.scaled = pygame.display.set_mode((int(Settings.scale*Settings.width), int(Settings.scale*Settings.height)), screenFlagsCombined)
-			self.screen = pygame.transform.scale(self.scaled, (Settings.width, Settings.height))
-		else:
-			self.screen = pygame.display.set_mode((Settings.width, Settings.height), screenFlagsCombined)
-
-	def scale(self): # Scale the screen
-		if Settings.scaleType == 1:
-			pygame.transform.smoothscale(self.screen, (Settings.scale*Settings.width, Settings.scale*Settings.height), self.scaled)
-		elif Settings.scaleType == 2:
-			tempscaler = []
-			tempscaler.append(self.screen)
-			for i in range(1,int(math.log(Settings.scale,2))):
-				tempscaler.append(pygame.transform.scale2x(tempscaler[i-1]))
-			pygame.transform.scale2x(tempscaler.pop(), self.scaled)
-		else:
-			pygame.transform.scale(self.screen, (int(Settings.scale*Settings.width), int(Settings.scale*Settings.height)), self.scaled)
 
 	def handleEvents(self): # Handle keyboard events
 		for event in pygame.event.get():
@@ -99,8 +40,8 @@ class Game:
 			# Global keys:
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
 				path = Functions.saveNameIncrement("screenshots", "screen", "png")
-				pygame.image.save(self.screen, path)
-				self.messageBox.addMessage("Screenshot saved to " + path + ".")
+				pygame.image.save(self.init.screen, path)
+				self.init.messageBox.addMessage("Screenshot saved to " + path + ".")
 			elif event.type == pygame.KEYDOWN and event.key == pygame.K_F5:
 				if Settings.sound:
 					if Settings.music:
@@ -116,13 +57,12 @@ class Game:
 					Settings.fullscreen = 0
 				elif Settings.fullscreen == 0:
 					Settings.fullscreen = 1
-				self.initScreen()
+				self.init.initScreen()
 
 			# Menu keys:
 			if self.inMenu:
 				if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 					self.running = False
-					print "Terminating..."
 				elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
 					for player in self.players:
 						player.event(event)
@@ -130,12 +70,12 @@ class Game:
 			# In-game keys
 			else:
 				if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-					self.__init__()
+					self.running = False
 				elif event.type == pygame.KEYDOWN and event.key == pygame.K_F1:
-					self.messageBox.showForce = True
+					self.init.messageBox.showForce = True
 					self.infoOverlay.show = True
 				elif event.type == pygame.KEYUP and event.key == pygame.K_F1:
-					self.messageBox.showForce = False
+					self.init.messageBox.showForce = False
 					self.infoOverlay.show = False
 				elif event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
 					path = os.path.join("maps", "saved")
@@ -146,11 +86,11 @@ class Game:
 					pygame.image.save(self.map.mask.make_surface(), os.path.join(path, "mask.png"))
 					pygame.image.save(self.map.visual, os.path.join(path, "visual.png"))
 					pygame.image.save(self.map.background.make_surface(), os.path.join(path, "background.png"))
-					self.messageBox.addMessage("Current map saved to " + path + ".")
+					self.init.messageBox.addMessage("Current map saved to " + path + ".")
 				elif event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
 					path = Functions.saveNameIncrement("screenshots", "fullmap", "png")
 					pygame.image.save(self.map.screenImage, path)
-					self.messageBox.addMessage("Screenshot saved to " + path + ".")
+					self.init.messageBox.addMessage("Screenshot saved to " + path + ".")
 				elif (event.type == pygame.KEYDOWN or event.type == pygame.KEYUP) and not(self.gameOver):
 					for player in self.players:
 						if player.ship.active:
@@ -161,11 +101,11 @@ class Game:
 			if self.bonusTimer <= 0:
 				self.bonusTimer = Settings.bonusDelay
 				if random.randint(0,1):
-					self.objects.append(Objects.RepairKit(self, None))
-					self.messageBox.addMessage("Repair kit spawned.")
+					self.objects.append(Objects.RepairKit(self, None, self.init))
+					self.init.messageBox.addMessage("Repair kit spawned.")
 				else:
-					self.objects.append(Objects.WeaponChanger(self, None))
-					self.messageBox.addMessage("Weapon changer spawned.")
+					self.objects.append(Objects.WeaponChanger(self, None, self.init))
+					self.init.messageBox.addMessage("Weapon changer spawned.")
 			else:
 				self.bonusTimer -= 1
 
@@ -184,9 +124,9 @@ class Game:
 					player.menuCheck()
 				if menuPlayers <= 0:
 					self.inMenu = False
-					self.screen.fill((0,0,0), ((0,0),(Settings.width,Settings.height)))
+					self.init.screen.fill((0,0,0), ((0,0),(Settings.width,Settings.height)))
 
-					self.messageBox.addMessage("Round started!")
+					self.init.messageBox.addMessage("Round started!")
 
 					for player in self.players:
 						player.createShip()
@@ -203,7 +143,7 @@ class Game:
 							activePlayers -= 1
 						if player.kills >= Settings.killLimit:
 							killLimitReached = True
-							self.messageBox.addMessage(player.name + " reached the kill limit!")
+							self.init.messageBox.addMessage(player.name + " reached the kill limit!")
 
 						player.check(self)
 
@@ -217,7 +157,7 @@ class Game:
 								player.ship.explode(self.map)
 							elif player.active:
 								player.winner = True
-								self.messageBox.addMessage(player.name + " is the winner!")
+								self.init.messageBox.addMessage(player.name + " is the winner!")
 
 								player.ship.thrust = False
 								player.ship.rotate = 0
@@ -225,8 +165,8 @@ class Game:
 				for i,player2 in enumerate(self.players): # Draw screens for each player
 					player2.drawHUD(self.map, i)
 
-				self.messageBox.draw(self)
-				self.infoOverlay.draw(self)
+				self.init.messageBox.draw(self.init)
+				self.init.infoOverlay.draw(self.init)
 
 			self.handleEvents()
 
@@ -240,7 +180,7 @@ class Game:
 			pygame.display.update()
 			self.map.draw()
 
-			self.clock.tick(100)
+			self.init.clock.tick(100)
 
 class Map:
 	def __init__(self): # Load the map

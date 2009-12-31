@@ -3,6 +3,6 @@
 
 print "Loading..."
 
-from src import Game
+from src import Init
 
-game = Game.Game()
+game = Init.Initiation()

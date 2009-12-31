@@ -2,6 +2,7 @@
 
 import math
 import os
+import pygame
 
 import Settings
 
@@ -28,7 +29,6 @@ def getSpecificFiles(path, extension): # Get list of files with the requested ty
 		for file in files:
 			if file.endswith(extension):
 				fileList.append(os.path.join(root,file))
-
 	return fileList
 
 def returnAngle(angle):

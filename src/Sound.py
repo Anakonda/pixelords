@@ -14,9 +14,9 @@ import Settings
 import Functions
 
 class Sound:
-	def __init__(self, game):
-		self.game = game
-
+	def __init__(self, init):
+		self.init = init
+		init = init
 		pygame.mixer.init()
 
 		pygame.mixer.music.set_volume(Settings.musicVolume)
@@ -47,16 +47,16 @@ class Sound:
 			self.music = self.musicList.pop()
 			pygame.mixer.music.load(self.music)
 			if mutagenEnabled:
-				self.game.messageBox.addMessage("Now playing: " + mutagen.oggvorbis.OggVorbis(self.music)["artist"][0] + " - " + mutagen.oggvorbis.OggVorbis(self.music)["title"][0])
+				self.init.messageBox.addMessage("Now playing: " + mutagen.oggvorbis.OggVorbis(self.music)["artist"][0] + " - " + mutagen.oggvorbis.OggVorbis(self.music)["title"][0])
 			else:
-				self.game.messageBox.addMessage("Now playing: " + self.music)
+				self.init.messageBox.addMessage("Now playing: " + self.music)
 
 			pygame.mixer.music.play()
 		else:
 			print "Warning: No music available."
 
-def playSound(game, number, single=False):
+def playSound(self, init, number, single=False):
 	if Settings.sound and number != None:
 		if single:
-			game.sound.effects[number].stop()
-		game.sound.effects[number].play()
+			init.sound.effects[number].stop()
+		init.sound.effects[number].play()

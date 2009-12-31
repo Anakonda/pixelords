@@ -4,12 +4,13 @@ import pygame
 import random
 
 import Settings
-import Menus
+import PlayerMenus
 import Objects
 import Ship
 
 class Player:
-	def __init__(self, game, keys, name, color):
+	def __init__(self, game, keys, name, color, init):
+		self.init = init
 		self.game = game
 		self.keys = keys
 		self.name = name
@@ -27,7 +28,7 @@ class Player:
 		self.respawnWait = 200
 
 		self.menuStage = 1
-		self.menu = Menus.shipChooser()
+		self.menu = PlayerMenus.shipChooser()
 
 	def menuCheck(self): # Check menu actions
 		if self.menuStage == 1:
@@ -37,11 +38,11 @@ class Player:
 				del self.menu
 
 	def menuDraw(self, i):
-		self.menu.draw(self.game, self.keys, i)
-
+		self.menu.draw(self.init, self.keys, i)
+		
 	def createShip(self): # Create a ship
 		self.spawnMessage = True
-		self.ship = Ship.Ship(self.game, self, 0,0,0,0, self.color)
+		self.ship = Ship.Ship(self.game, self, self.init, 0,0,0,0, self.color)
 		self.ship.setShipType(self.shipType)
 		self.ship.active = False
 		self.game.objects.append(self.ship)
@@ -61,13 +62,13 @@ class Player:
 						self.lives -= 1
 
 						if self == self.ship.lastHitter:
-							game.messageBox.addMessage(self.name + " killed himself.")
+							self.init.messageBox.addMessage(self.name + " killed himself.")
 						else:
 							try:
 								self.ship.lastHitter.kills += 1
-								game.messageBox.addMessage(self.name + " was killed by " + self.ship.lastHitter.name + ".")
+								self.init.messageBox.addMessage(self.name + " was killed by " + self.ship.lastHitter.name + ".")
 							except AttributeError:
-								game.messageBox.addMessage(self.name + " died. ")
+								self.init.messageBox.addMessage(self.name + " died. ")
 
 						self.ship.lastHitter = None
 
@@ -79,14 +80,14 @@ class Player:
 		elif self.active:
 			self.active = False
 			self.spawnMessage = False
-			game.messageBox.addMessage(self.name + " is out!")
+			self.init.messageBox.addMessage(self.name + " is out!")
 
 	def shoot(self):
 		if self.shoot1: # Light weapon
-			self.ship.lightWeapon.activate(self.ship)
+			self.ship.lightWeapon.activate(self.ship, self.init)
 
 		if self.shoot2: # Heavy weapon
-			self.ship.heavyWeapon.activate(self.ship)
+			self.ship.heavyWeapon.activate(self.ship, self.init)
 
 	def drawHUD(self, map, i): # Draw the HUD
 		if Settings.playerAmount == 3:
@@ -116,14 +117,14 @@ class Player:
 			if random.randint(0,10) == 0:
 				self.game.screen.blit(map.screenImage, (int(i*Settings.width/Settings.playerAmount),0), ((int(left),int(top)), (Settings.width/Settings.playerAmount+1,Settings.height-20)))
 		else:
-			self.game.screen.blit(map.screenImage, (int(i*Settings.width/Settings.playerAmount),0), ((int(left),int(top)), (Settings.width/Settings.playerAmount+1,Settings.height-20)))
+			self.init.screen.blit(map.screenImage, (int(i*Settings.width/Settings.playerAmount),0), ((int(left),int(top)), (Settings.width/Settings.playerAmount+1,Settings.height-20)))
 
-		self.game.screen.fill((0,0,0),((i*Settings.width/Settings.playerAmount,Settings.height-20),(Settings.width/Settings.playerAmount+1,20)))
+		self.init.screen.fill((0,0,0),((i*Settings.width/Settings.playerAmount,Settings.height-20),(Settings.width/Settings.playerAmount+1,20)))
 
-		self.game.screen.blit(self.ship.lightWeapon.image, (i*Settings.width/Settings.playerAmount+28,Settings.height-19))
-		self.game.screen.blit(self.ship.heavyWeapon.image, (i*Settings.width/Settings.playerAmount+48,Settings.height-19))
+		self.init.screen.blit(self.ship.lightWeapon.image, (i*Settings.width/Settings.playerAmount+28,Settings.height-19))
+		self.init.screen.blit(self.ship.heavyWeapon.image, (i*Settings.width/Settings.playerAmount+48,Settings.height-19))
 
-		self.game.screen.blit(self.game.text4.render(str(self.kills) + " / " + str(self.lives), True, (0,255,0)), (i*Settings.width/Settings.playerAmount+3,Settings.height-17))
+		self.init.screen.blit(self.init.text4.render(str(self.kills) + " / " + str(self.lives), True, (0,255,0)), (i*Settings.width/Settings.playerAmount+3,Settings.height-17))
 
 		if self.ship.active:
 			if self.ship.hp > self.ship.shipModel.hp/2:
@@ -132,7 +133,7 @@ class Player:
 				hpcolor = (255,255,0)
 			else:
 				hpcolor = (255,0,0)
-			pygame.draw.rect(self.game.screen, hpcolor, ((i*Settings.width/Settings.playerAmount+70,Settings.height-7),(int((self.ship.hp/self.ship.shipModel.hp)*(Settings.width/Settings.playerAmount-70)),7)))
+			pygame.draw.rect(self.init.screen, hpcolor, ((i*Settings.width/Settings.playerAmount+70,Settings.height-7),(int((self.ship.hp/self.ship.shipModel.hp)*(Settings.width/Settings.playerAmount-70)),7)))
 
 			for a,weapon in enumerate((self.ship.lightWeapon, self.ship.heavyWeapon)):
 				if weapon.loaded >= 100 or not(weapon.loading):
@@ -140,25 +141,25 @@ class Player:
 				else:
 					loadColor = (0,255,255)
 
-				pygame.draw.rect(self.game.screen, loadColor, ((i*Settings.width/Settings.playerAmount+70,Settings.height-19+a*6),(int(((weapon.loaded)/100)*(Settings.width/Settings.playerAmount-70)),5)))
+				pygame.draw.rect(self.init.screen, loadColor, ((i*Settings.width/Settings.playerAmount+70,Settings.height-19+a*6),(int(((weapon.loaded)/100)*(Settings.width/Settings.playerAmount-70)),5)))
 
 		if i > 0:
 			if Settings.playerAmount == 3 and i == 2:
-				pygame.draw.line(self.game.screen, (0,0,0), (int((i-1)*Settings.width/Settings.playerAmount),0), (int((i-1)*Settings.width/Settings.playerAmount),Settings.height))
-			pygame.draw.line(self.game.screen, (0,0,0), (int(i*Settings.width/Settings.playerAmount),0), (int(i*Settings.width/Settings.playerAmount),Settings.height))
+				pygame.draw.line(self.init.screen, (0,0,0), (int((i-1)*Settings.width/Settings.playerAmount),0), (int((i-1)*Settings.width/Settings.playerAmount),Settings.height))
+			pygame.draw.line(self.init.screen, (0,0,0), (int(i*Settings.width/Settings.playerAmount),0), (int(i*Settings.width/Settings.playerAmount),Settings.height))
 
 		if self.spawnMessage and not(self.winner):
-			self.game.screen.blit(self.game.text.render("Spawning with " + str(self.ship.lightWeapon.name) + " and " + str(self.ship.heavyWeapon.name), True, (255,0,0)), (i*Settings.width/Settings.playerAmount+50,50))
+			self.init.screen.blit(self.init.text.render("Spawning with " + str(self.ship.lightWeapon.name) + " and " + str(self.ship.heavyWeapon.name), True, (255,0,0)), (i*Settings.width/Settings.playerAmount+50,50))
 			if self.lives > 1:
-				self.game.screen.blit(self.game.text.render(str(self.lives) + " lives left.", True, (0,255,0)), (i*Settings.width/Settings.playerAmount+50,70))
+				self.init.screen.blit(self.init.text.render(str(self.lives) + " lives left.", True, (0,255,0)), (i*Settings.width/Settings.playerAmount+50,70))
 			else:
-				self.game.screen.blit(self.game.text.render("You got no extra lives!", True, (0,255,0)), (i*Settings.width/Settings.playerAmount+50,70))
+				self.init.screen.blit(self.init.text.render("You got no extra lives!", True, (0,255,0)), (i*Settings.width/Settings.playerAmount+50,70))
 
 		if not(self.active):
-			self.game.screen.blit(self.game.text.render("You are out!", True, (255,0,0)), (i*Settings.width/Settings.playerAmount+50,50))
+			self.init.screen.blit(self.init.text.render("You are out!", True, (255,0,0)), (i*Settings.width/Settings.playerAmount+50,50))
 		elif self.winner:
-			self.game.screen.blit(self.game.text2.render("You are the winner!", True, (0,255,0)), (i*Settings.width/Settings.playerAmount+50,50))
-			self.game.screen.blit(self.game.text.render("Press ESCAPE to continue...", True, (0,255,255)), (i*Settings.width/Settings.playerAmount+70,100))
+			self.init.screen.blit(self.init.text2.render("You are the winner!", True, (0,255,0)), (i*Settings.width/Settings.playerAmount+50,50))
+			self.init.screen.blit(self.init.text.render("Press ESCAPE to continue...", True, (0,255,255)), (i*Settings.width/Settings.playerAmount+70,100))
 
 	def event(self, event): # Take keyboard events
 		if self.game.inMenu:

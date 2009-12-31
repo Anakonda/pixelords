@@ -27,8 +27,8 @@ class Ship(Objects.Object):
 		self.isSprite = True
 		self.isShip = True
 
-		self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
-		self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
+		self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game, self.initiation)
+		self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game, self.initiation)
 
 	def setShipType(self, shipType): # Load the specific ship
 		self.shipModel = shipType()
@@ -69,11 +69,11 @@ class Ship(Objects.Object):
 	def draw(self, map): # Drawing
 		if self.thrust:
 			if random.uniform(0,1) < 0.5:
-				self.game.objects.append(Objects.ThrustFlame(self.game, self.owner, self.x-2*self.dx-12*math.cos(self.angle), self.y-2*self.dy-12*math.sin(self.angle), self.dx-1*math.cos(self.angle), self.dy-1*math.sin(self.angle)))
+				self.game.objects.append(Objects.ThrustFlame(self.game, self.owner, self.initiation, self.x-2*self.dx-12*math.cos(self.angle), self.y-2*self.dy-12*math.sin(self.angle), self.dx-1*math.cos(self.angle), self.dy-1*math.sin(self.angle)))
 
 		if self.hp < self.shipModel.hp/6:
 			if random.uniform(0,1) < 0.2:
-				self.game.objects.append(Objects.Smoke(self.game, self.owner, self.x, self.y))
+				self.game.objects.append(Objects.Smoke(self.game, self.owner, self.initiation, self.x, self.y))
 
 		self.spriteDraw(map)
 		self.redraw(map, self.size)
@@ -81,8 +81,8 @@ class Ship(Objects.Object):
 	def destroy(self, map): # Destroy the ship
 		if self.active:
 			if Settings.resetWeaponsOnDeath:
-				self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
-				self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
+				self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game, self.initiation)
+				self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game, self.initiation)
 
 			self.active = False
 

@@ -10,7 +10,8 @@ import Objects
 import Sound
 
 class Weapon:
-	def __init__(self, game):
+	def __init__(self, game, init):
+		self.initiation = init
 		self.game = game
 
 		self.loaded = 100.0
@@ -37,7 +38,7 @@ class Weapon:
 	def setImage(self, image): # Set weapon icon
 		self.image = pygame.transform.smoothscale(pygame.image.load(Functions.gfxPath(image)).convert_alpha(), (18,18))
 
-	def activate(self, ship): # Use the weapon
+	def activate(self, ship, initiation): # Use the weapon
 		if (not(self.loading) or self.continuousLoad) and self.loaded >= self.activationCost and self.shotDelayStatus == 0:
 			if self.probability == 1 or random.uniform(0,1) < self.probability:
 				self.loaded -= self.activationCost
@@ -45,7 +46,7 @@ class Weapon:
 
 				self.fire(ship)
 
-				Sound.playSound(self.game, self.sound, self.soundSingle)
+				Sound.playSound(self.sound, self.initiation, self.soundSingle)
 
 				ship.dx -= self.recoil*math.cos(ship.angle)
 				ship.dy -= self.recoil*math.sin(ship.angle)
@@ -61,7 +62,7 @@ class Weapon:
 	def shootObject(self, ship, object, offset, speed, speedDeviationFactor=1, spread=0, amount=1, shipSpeedEffect=1): # Spawn a new object
 		for i in range(amount):
 			angle = ship.angle + random.uniform(-spread,spread)
-			ship.game.objects.append(object(ship.game, ship.owner, ship.x+ship.dx+offset*math.cos(angle), ship.y+ship.dy+offset*math.sin(angle),
+			ship.game.objects.append(object(ship.game, ship.owner, self.initiation, ship.x+ship.dx+offset*math.cos(angle), ship.y+ship.dy+offset*math.sin(angle),
 				shipSpeedEffect*ship.dx+random.uniform(1,speedDeviationFactor)*speed*math.cos(angle), shipSpeedEffect*ship.dy+random.uniform(1,speedDeviationFactor)*speed*math.sin(angle)))
 
 	def check(self, ship): # Per-frame checks
