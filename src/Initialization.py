@@ -8,7 +8,7 @@ import Messages
 import Sound
 import Menus
 
-class Initiation:
+class Initialization:
 	def __init__(self):
 		self.initScreen()
 		
@@ -29,10 +29,7 @@ class Initiation:
 		
 		mainmenu = Menus.MainMenu(self)
 
-			
-	def initScreen(self): # Create screen
-
-
+	def initScreen(self): # Create the screen
 		screenFlags = []
 
 		if Settings.fullscreen == 1:
@@ -76,6 +73,3 @@ class Initiation:
 			pygame.transform.scale2x(tempscaler.pop(), self.scaled)
 		else:
 			pygame.transform.scale(self.screen, (int(Settings.scale*Settings.width), int(Settings.scale*Settings.height)), self.scaled)
-
-
-
