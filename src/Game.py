@@ -14,10 +14,13 @@ import Player
 import Sound
 
 class Game:
-	def __init__(self, init):
+	def __init__(self, engine):
 		self.gameOver = False
-		self.init = init
+		self.engine = engine
 
+		pygame.mouse.set_visible(False)
+
+		self.infoOverlay = Messages.InfoOverlay()
 
 		self.map = Map()
 
@@ -40,8 +43,8 @@ class Game:
 			# Global keys:
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
 				path = Functions.saveNameIncrement("screenshots", "screen", "png")
-				pygame.image.save(self.init.screen, path)
-				self.init.messageBox.addMessage("Screenshot saved to " + path + ".")
+				pygame.image.save(self.engine.screen, path)
+				self.engine.messageBox.addMessage("Screenshot saved to " + path + ".")
 			elif event.type == pygame.KEYDOWN and event.key == pygame.K_F5:
 				if Settings.sound:
 					if Settings.music:
@@ -57,7 +60,7 @@ class Game:
 					Settings.fullscreen = 0
 				elif Settings.fullscreen == 0:
 					Settings.fullscreen = 1
-				self.init.initScreen()
+				self.engine.initScreen()
 
 			# Menu keys:
 			if self.inMenu:
@@ -72,10 +75,10 @@ class Game:
 				if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 					self.running = False
 				elif event.type == pygame.KEYDOWN and event.key == pygame.K_F1:
-					self.init.messageBox.showForce = True
+					self.engine.messageBox.showForce = True
 					self.infoOverlay.show = True
 				elif event.type == pygame.KEYUP and event.key == pygame.K_F1:
-					self.init.messageBox.showForce = False
+					self.engine.messageBox.showForce = False
 					self.infoOverlay.show = False
 				elif event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
 					path = os.path.join("maps", "saved")
@@ -86,11 +89,11 @@ class Game:
 					pygame.image.save(self.map.mask.make_surface(), os.path.join(path, "mask.png"))
 					pygame.image.save(self.map.visual, os.path.join(path, "visual.png"))
 					pygame.image.save(self.map.background.make_surface(), os.path.join(path, "background.png"))
-					self.init.messageBox.addMessage("Current map saved to " + path + ".")
+					self.engine.messageBox.addMessage("Current map saved to " + path + ".")
 				elif event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
 					path = Functions.saveNameIncrement("screenshots", "fullmap", "png")
 					pygame.image.save(self.map.screenImage, path)
-					self.init.messageBox.addMessage("Screenshot saved to " + path + ".")
+					self.engine.messageBox.addMessage("Screenshot saved to " + path + ".")
 				elif (event.type == pygame.KEYDOWN or event.type == pygame.KEYUP) and not(self.gameOver):
 					for player in self.players:
 						if player.ship.active:
@@ -101,11 +104,11 @@ class Game:
 			if self.bonusTimer <= 0:
 				self.bonusTimer = Settings.bonusDelay
 				if random.randint(0,1):
-					self.objects.append(Objects.RepairKit(self, None, self.init))
-					self.init.messageBox.addMessage("Repair kit spawned.")
+					self.objects.append(Objects.RepairKit(self, None, self.engine))
+					self.engine.messageBox.addMessage("Repair kit spawned.")
 				else:
-					self.objects.append(Objects.WeaponChanger(self, None, self.init))
-					self.init.messageBox.addMessage("Weapon changer spawned.")
+					self.objects.append(Objects.WeaponChanger(self, None, self.engine))
+					self.engine.messageBox.addMessage("Weapon changer spawned.")
 			else:
 				self.bonusTimer -= 1
 
@@ -124,9 +127,9 @@ class Game:
 					player.menuCheck()
 				if menuPlayers <= 0:
 					self.inMenu = False
-					self.init.screen.fill((0,0,0), ((0,0),(Settings.width,Settings.height)))
+					self.engine.screen.fill((0,0,0), ((0,0),(Settings.width,Settings.height)))
 
-					self.init.messageBox.addMessage("Round started!")
+					self.engine.messageBox.addMessage("Round started!")
 
 					for player in self.players:
 						player.createShip()
@@ -143,7 +146,7 @@ class Game:
 							activePlayers -= 1
 						if player.kills >= Settings.killLimit:
 							killLimitReached = True
-							self.init.messageBox.addMessage(player.name + " reached the kill limit!")
+							self.engine.messageBox.addMessage(player.name + " reached the kill limit!")
 
 						player.check(self)
 
@@ -157,7 +160,7 @@ class Game:
 								player.ship.explode(self.map)
 							elif player.active:
 								player.winner = True
-								self.init.messageBox.addMessage(player.name + " is the winner!")
+								self.engine.messageBox.addMessage(player.name + " is the winner!")
 
 								player.ship.thrust = False
 								player.ship.rotate = 0
@@ -165,8 +168,8 @@ class Game:
 				for i,player2 in enumerate(self.players): # Draw screens for each player
 					player2.drawHUD(self.map, i)
 
-				self.init.messageBox.draw(self.init)
-				self.init.infoOverlay.draw(self.init)
+				self.engine.messageBox.draw(self.engine)
+				self.infoOverlay.draw(self.engine)
 
 			self.handleEvents()
 
@@ -180,7 +183,7 @@ class Game:
 			pygame.display.update()
 			self.map.draw()
 
-			self.init.clock.tick(100)
+			self.engine.clock.tick(100)
 
 class Map:
 	def __init__(self): # Load the map

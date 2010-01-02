@@ -9,7 +9,7 @@ scaleType: 0
 showFPS: false
 
 [Sound]
-enabled: False
+enabled: true
 music: true
 musicVolume: 0.8
 

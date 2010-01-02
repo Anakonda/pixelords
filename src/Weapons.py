@@ -45,7 +45,7 @@ class Weapon:
 
 				self.fire(ship)
 
-				Sound.playSound(self.game.init, self.sound, self.soundSingle)
+				Sound.playSound(self.game.engine, self.sound, self.soundSingle)
 
 				ship.dx -= self.recoil*math.cos(ship.angle)
 				ship.dy -= self.recoil*math.sin(ship.angle)

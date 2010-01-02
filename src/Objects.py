@@ -183,7 +183,7 @@ class Object(pygame.sprite.Sprite):
 		size = self.explosionSizeFactor*self.size
 
 		if size > 10:
-			Sound.playSound(self.game.init, 0, False)
+			Sound.playSound(self.game.engine, 0, False)
 
 		if int(self.x+size) > map.width:
 			right = map.width
@@ -317,7 +317,7 @@ class WeaponChanger(Object):
 	def draw(self, map):
 		self.spriteDraw(map)
 
-		self.text = self.game.init.text4.render(self.newWeapon.name, True, (255,255,255))
+		self.text = self.game.engine.text4.render(self.newWeapon.name, True, (255,255,255))
 
 		self.game.map.screenImage.blit(self.text, (self.x-self.text.get_width()/2-1,self.y-23))
 		self.game.map.redraw((int(self.x-self.text.get_width()/2-1),int(self.y-23)),(self.text.get_width(), self.text.get_height()))
@@ -613,7 +613,7 @@ class Missile(Object):
 				if target != None:
 					if self.target == None:
 						self.target = target
-						Sound.playSound(self.game.init, 6, False)
+						Sound.playSound(self.game.engine, 6, False)
 					elif target == self.target:
 						predictedTargetX = target.x - 5*self.dx
 						predictedTargetY = target.y - 5*self.dy
@@ -700,7 +700,7 @@ class Dirtball(Object):
 							map.visual.set_at((x,y),(145+rand,95+rand,20+rand,255))
 							map.screenImage.set_at((x,y),(145+rand,95+rand,20+rand,255))
 
-		Sound.playSound(self.game.init, 5, False)
+		Sound.playSound(self.game.engine, 5, False)
 
 		self.destroy(map)
 

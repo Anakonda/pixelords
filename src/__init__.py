@@ -8,7 +8,7 @@ import Messages
 import Sound
 import Menus
 
-class Initialization:
+class Engine:
 	def __init__(self):
 		self.initScreen()
 		
@@ -22,7 +22,6 @@ class Initialization:
 		self.text4 = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 12)
 
 		self.messageBox = Messages.MessageBox()
-		self.infoOverlay = Messages.InfoOverlay()
 
 		if Settings.sound:
 			self.sound = Sound.Sound(self)
@@ -59,9 +58,7 @@ class Initialization:
 			self.screen = pygame.transform.scale(self.scaled, (Settings.width, Settings.height))
 		else:
 			self.screen = pygame.display.set_mode((Settings.width, Settings.height), screenFlagsCombined)
-		pygame.mouse.set_visible(True)
 
-			
 	def scale(self): # Scale the screen
 		if Settings.scaleType == 1:
 			pygame.transform.smoothscale(self.screen, (Settings.scale*Settings.width, Settings.scale*Settings.height), self.scaled)

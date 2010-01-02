@@ -5,4 +5,4 @@ print "Loading..."
 
 import src
 
-game = src.Initialization()
+game = src.Engine()
