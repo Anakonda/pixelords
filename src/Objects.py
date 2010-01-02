@@ -10,8 +10,7 @@ import Functions
 import Sound
 
 class Object(pygame.sprite.Sprite):
-	def __init__(self, game, owner, init, x=0,y=0, dx=0,dy=0, color=(176,176,176,255)):
-		self.initiation = init
+	def __init__(self, game, owner, x=0,y=0, dx=0,dy=0, color=(176,176,176,255)):
 		self.game = game
 		self.color = color
 		self.owner = owner
@@ -184,7 +183,7 @@ class Object(pygame.sprite.Sprite):
 		size = self.explosionSizeFactor*self.size
 
 		if size > 10:
-			Sound.playSound(None, self.initiation, 0, False)
+			Sound.playSound(self.game.init, 0, False)
 
 		if int(self.x+size) > map.width:
 			right = map.width
@@ -299,9 +298,9 @@ class WeaponChanger(Object):
 		self.size = 10
 		self.heavy = random.randint(0,1)
 		if self.heavy:
-			self.newWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game, self.initiation)
+			self.newWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
 		else:
-			self.newWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game, self.initiation)
+			self.newWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
 
 		self.randomizeLocation(self.game.map)
 
@@ -318,7 +317,7 @@ class WeaponChanger(Object):
 	def draw(self, map):
 		self.spriteDraw(map)
 
-		self.text = self.initiation.text4.render(self.newWeapon.name, True, (255,255,255))
+		self.text = self.game.init.text4.render(self.newWeapon.name, True, (255,255,255))
 
 		self.game.map.screenImage.blit(self.text, (self.x-self.text.get_width()/2-1,self.y-23))
 		self.game.map.redraw((int(self.x-self.text.get_width()/2-1),int(self.y-23)),(self.text.get_width(), self.text.get_height()))
@@ -614,7 +613,7 @@ class Missile(Object):
 				if target != None:
 					if self.target == None:
 						self.target = target
-						Sound.playSound(None, self.game, 6, False)
+						Sound.playSound(self.game.init, 6, False)
 					elif target == self.target:
 						predictedTargetX = target.x - 5*self.dx
 						predictedTargetY = target.y - 5*self.dy
@@ -701,7 +700,7 @@ class Dirtball(Object):
 							map.visual.set_at((x,y),(145+rand,95+rand,20+rand,255))
 							map.screenImage.set_at((x,y),(145+rand,95+rand,20+rand,255))
 
-		Sound.playSound(None, self.initiation, 5, False)
+		Sound.playSound(self.game.init, 5, False)
 
 		self.destroy(map)
 

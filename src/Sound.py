@@ -55,7 +55,7 @@ class Sound:
 		else:
 			print "Warning: No music available."
 
-def playSound(self, init, number, single=False):
+def playSound(init, number, single=False):
 	if Settings.sound and number != None:
 		if single:
 			init.sound.effects[number].stop()
