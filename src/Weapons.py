@@ -181,8 +181,6 @@ class Bomber(Weapon):
 		self.name = "Bomber"
 		self.loadSpeed = 0.5
 
-		self.setImage("bomb.png")
-
 	def fire(self, ship):
 		ship.game.objects.append(Objects.Bomb(ship.game, ship.owner, ship.x+ship.dx, ship.y+ship.dy+15, ship.dx, ship.dy+0.5))
 
