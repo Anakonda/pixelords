@@ -658,7 +658,6 @@ class Bomb(Object):
 		self.size = 6
 		self.explosionSizeFactor = 3
 		self.explosionParticleFactor = 2
-		self.sprite("bomb.png")
 
 		self.airResistance = 10
 
