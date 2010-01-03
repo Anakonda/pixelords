@@ -25,6 +25,7 @@ class Object(pygame.sprite.Sprite):
 
 		self.color = color
 		self.isSprite = False
+		self.rotateWithSpeed = False
 
 		self.explosionCollision = True
 		self.isShip = False
@@ -177,6 +178,12 @@ class Object(pygame.sprite.Sprite):
 
 		if self.rotate != 0: # Rotation
 			self.angle += self.rotate*0.04+random.uniform(-0.005, 0.005)
+
+		if self.rotateWithSpeed:
+			if self.dx >= 0:
+				self.angle = math.atan(self.dy/self.dx)+math.pi/2
+			else:
+				self.angle = math.atan(self.dy/self.dx)+3*math.pi/2
 
 	def explode(self,map): # Explode
 		size = self.explosionSizeFactor*self.size
@@ -659,8 +666,10 @@ class Bomb(Object):
 		self.explosionParticleFactor = 2
 
 		self.airResistance = 10
-
 		self.explosionCollision = False
+
+		self.sprite("bomb.png")
+		self.rotateWithSpeed = True
 
 		self.dx += random.uniform(-0.1,0.1)
 
