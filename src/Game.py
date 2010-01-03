@@ -19,8 +19,7 @@ class Game:
 		self.engine = engine
 
 		pygame.mouse.set_visible(False)
-
-		self.infoOverlay = Messages.InfoOverlay()
+		self.engine.inGame = True
 
 		self.map = Map()
 
@@ -34,33 +33,9 @@ class Game:
 
 		self.run()
 
-	def handleEvents(self): # Handle keyboard events
+	def event(self): # Handle keyboard events
 		for event in pygame.event.get():
-			# General events:
-			if event.type == pygame.constants.USEREVENT:
-				self.sound.loadMusic()
-
-			# Global keys:
-			if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
-				path = Functions.saveNameIncrement("screenshots", "screen", "png")
-				pygame.image.save(self.engine.screen, path)
-				self.engine.messageBox.addMessage("Screenshot saved to " + path + ".")
-			elif event.type == pygame.KEYDOWN and event.key == pygame.K_F5:
-				if Settings.sound:
-					if Settings.music:
-						Settings.music = False
-						pygame.mixer.music.stop()
-					else:
-						Settings.music = True
-						self.sound.loadMusic()
-				else:
-					print "Warning: Can't enable music (sounds are not enabled)"
-			elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and pygame.key.get_mods() & pygame.KMOD_ALT:
-				if Settings.fullscreen == 1 or Settings.fullscreen == 2:
-					Settings.fullscreen = 0
-				elif Settings.fullscreen == 0:
-					Settings.fullscreen = 1
-				self.engine.initScreen()
+			self.engine.globalEvent(event)
 
 			# Menu keys:
 			if self.inMenu:
@@ -74,12 +49,6 @@ class Game:
 			else:
 				if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 					self.running = False
-				elif event.type == pygame.KEYDOWN and event.key == pygame.K_F1:
-					self.engine.messageBox.showForce = True
-					self.infoOverlay.show = True
-				elif event.type == pygame.KEYUP and event.key == pygame.K_F1:
-					self.engine.messageBox.showForce = False
-					self.infoOverlay.show = False
 				elif event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
 					path = os.path.join("maps", "saved")
 					try:
@@ -168,10 +137,10 @@ class Game:
 				for i,player2 in enumerate(self.players): # Draw screens for each player
 					player2.drawHUD(self.map, i)
 
-				self.engine.messageBox.draw(self.engine)
-				self.infoOverlay.draw(self.engine)
+			self.engine.messageBox.draw(self.engine)
+			self.engine.infoOverlay.draw(self.engine)
 
-			self.handleEvents()
+			self.event()
 
 			if Settings.showFPS:
 				self.screen.blit(self.text.render(str(int(self.clock.get_fps())), True, (255,0,0)), (Settings.width-40,10))

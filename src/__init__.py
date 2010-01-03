@@ -16,17 +16,55 @@ class Engine:
 
 		pygame.font.init()
 
-		self.text = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 16)
-		self.text2 = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 42)
-		self.text3 = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 32)
-		self.text4 = pygame.font.Font(os.path.join("resources","LiberationSans-Bold.ttf"), 12)
+		self.font = os.path.join("resources","LiberationSans-Bold.ttf")
+
+		self.text = pygame.font.Font(self.font, 16)
+		self.text2 = pygame.font.Font(self.font, 42)
+		self.text3 = pygame.font.Font(self.font, 32)
+		self.text4 = pygame.font.Font(self.font, 12)
 
 		self.messageBox = Messages.MessageBox()
+		self.infoOverlay = Messages.InfoOverlay()
 
 		if Settings.sound:
 			self.sound = Sound.Sound(self)
 		
-		self.menu = Menus.MainMenu(self)
+		self.inGame = False
+
+		self.mainMenu = Menus.MainMenu(self)
+
+	def globalEvent(self, event): # Handle global events
+		# General events:
+		if event.type == pygame.constants.USEREVENT:
+			self.sound.loadMusic()
+
+		# Global keys:
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+			path = Functions.saveNameIncrement("screenshots", "screen", "png")
+			pygame.image.save(self.screen, path)
+			self.messageBox.addMessage("Screenshot saved to " + path + ".")
+		elif event.type == pygame.KEYDOWN and event.key == pygame.K_F1:
+			self.messageBox.showForce = True
+			self.infoOverlay.show = True
+		elif event.type == pygame.KEYUP and event.key == pygame.K_F1:
+			self.messageBox.showForce = False
+			self.infoOverlay.show = False
+		elif event.type == pygame.KEYDOWN and event.key == pygame.K_F5:
+			if Settings.sound:
+				if Settings.music:
+					Settings.music = False
+					pygame.mixer.music.stop()
+				else:
+					Settings.music = True
+					self.sound.loadMusic()
+			else:
+				print "Warning: Can't enable music (sounds are not enabled)"
+		elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and pygame.key.get_mods() & pygame.KMOD_ALT:
+			if Settings.fullscreen == 1 or Settings.fullscreen == 2:
+				Settings.fullscreen = 0
+			elif Settings.fullscreen == 0:
+				Settings.fullscreen = 1
+			self.initScreen()
 
 	def initScreen(self): # Create the screen
 		screenFlags = []
