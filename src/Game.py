@@ -143,16 +143,19 @@ class Game:
 			self.event()
 
 			if Settings.showFPS:
-				self.screen.blit(self.text.render(str(int(self.clock.get_fps())), True, (255,0,0)), (Settings.width-40,10))
+				self.engine.screen.blit(self.engine.text.render(str(int(self.engine.clock.get_fps())), True, (255,0,0)), (Settings.width-40,10))
 
 			if Settings.scale != 1:
-				self.scale()
+				self.engine.scale()
 
 			# Redraw the screen
 			pygame.display.update()
 			self.map.draw()
 
-			self.engine.clock.tick(100)
+			if self.inMenu:
+				self.engine.clock.tick(30)
+			else:
+				self.engine.clock.tick(100)
 
 class Map:
 	def __init__(self): # Load the map

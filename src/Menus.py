@@ -12,11 +12,20 @@ class Menu:
 		self.engine = engine
 		self.widgets = []
 
+		self.dragging = None
+
 		self.running = True
 		self.init()
 		while self.running:
 			self.event()
 			self.draw()
+
+			if Settings.showFPS:
+				self.engine.screen.blit(self.engine.text.render(str(int(self.engine.clock.get_fps())), True, (255,0,0)), (Settings.width-40,10))
+
+			if Settings.scale != 1:
+				self.engine.scale()
+
 			pygame.display.update()
 			self.engine.clock.tick(30)
 	
@@ -27,13 +36,23 @@ class Menu:
 			if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 				self.quit()
 			elif event.type == pygame.MOUSEBUTTONDOWN:
-				x,y = pygame.mouse.get_pos()
+				x = pygame.mouse.get_pos()[0]/Settings.scale
+				y = pygame.mouse.get_pos()[1]/Settings.scale
 				for widget in self.widgets:
 					try:
 						if x > widget.x and x < widget.x+widget.sizex and y > widget.y and y < widget.y+widget.sizey:
 							widget.action(x,y)
+							if widget.isDraggable:
+								self.dragging = widget
 					except AttributeError:
 						pass
+			elif self.dragging != None:
+				if event.type == pygame.MOUSEMOTION:
+					x = pygame.mouse.get_pos()[0]/Settings.scale
+					y = pygame.mouse.get_pos()[1]/Settings.scale
+					self.dragging.action(x,y)
+				elif event.type == pygame.MOUSEBUTTONUP:
+					self.dragging = None
 
 	def addWidget(self, widget):
 		self.widgets.append(widget)
@@ -100,6 +119,8 @@ class Menu:
 			self.variable = variable
 			self.valueRange = valueRange
 			self.returnValue = returnValue
+
+			self.isDraggable = True
 			
 		def draw(self, menu):
 			menu.engine.screen.fill((0,128,0),((self.x,self.y),(self.sizex,self.sizey)))
@@ -108,7 +129,12 @@ class Menu:
 			menu.engine.screen.blit(text, (self.x,self.y-0.05*self.sizey))
 
 		def action(self,x,y):
-			self.variable = (x-self.x)*((self.valueRange[1]-self.valueRange[0])/float(self.sizex))+self.valueRange[0]
+			if x < self.x:
+				self.variable = self.valueRange[0]
+			elif x > self.x+self.sizex:
+				self.variable = self.valueRange[1]
+			else:
+				self.variable = (x-self.x)*((self.valueRange[1]-self.valueRange[0])/float(self.sizex))+self.valueRange[0]
 			self.returnValue(int(round(self.variable)))
 
 class MainMenu(Menu):
@@ -139,20 +165,33 @@ class Options(Menu):
 
 		self.addWidget(self.Label((Settings.width/6,Settings.height/24),36,"Options"))
 
-		self.addWidget(self.CheckBox((Settings.width/6,2.5*Settings.height/6),(Settings.width/24,Settings.width/24), self.testEnabled, self.getTestEnabled))
+		self.addWidget(self.CheckBox((Settings.width/6,2.5*Settings.height/6),(Settings.width/24,Settings.width/24), self.testEnabled, self.setTestEnabled))
 		self.addWidget(self.Label((Settings.width/4.5,2.5*Settings.height/6),24,"Test enabled"))
 
-		self.addWidget(self.Slider((Settings.width/6,4*Settings.height/6),(Settings.width/2,Settings.width/24), self.testValue, (1,100), self.getTestValue))
-		self.addWidget(self.Label((Settings.width/6,3.5*Settings.height/6),24,"Test value"))
+		self.addWidget(self.Slider((Settings.width/6,3.4*Settings.height/6),(Settings.width/2,Settings.width/24), self.testValue, (50,150), self.setTestValue))
+		self.addWidget(self.Label((Settings.width/6,3*Settings.height/6),24,"Test value"))
+
+		self.addWidget(self.CheckBox((Settings.width/6,4*Settings.height/6),(Settings.width/24,Settings.width/24), Settings.showFPS, self.setShowFPS))
+		self.addWidget(self.Label((Settings.width/4.5,4*Settings.height/6),24,"Show FPS"))
+
+		self.addWidget(self.Slider((Settings.width/6,5*Settings.height/6),(Settings.width/2,Settings.width/24), 100*Settings.musicVolume, (0,100), self.setMusicVolume))
+		self.addWidget(self.Label((Settings.width/6,4.5*Settings.height/6),24,"Music volume"))
 
 		self.addWidget(self.Button((Settings.width/6,Settings.height/6),(Settings.width/6,Settings.height/6),"Test", self.test))
 		self.addWidget(self.Button((3*Settings.width/6,Settings.height/6),(Settings.width/6,Settings.height/6),"OK", self.goBack))
 
-	def getTestEnabled(self, value):
+	def setTestEnabled(self, value):
 		self.testEnabled = value
 
-	def getTestValue(self, value):
+	def setTestValue(self, value):
 		self.testValue = value
+
+	def setShowFPS(self, value):
+		Settings.showFPS = value
+
+	def setMusicVolume(self, value):
+		Settings.musicVolume = value/100.0
+		pygame.mixer.music.set_volume(Settings.musicVolume)
 
 	def test(self,x,y):
 		if self.testEnabled:
