@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import pygame
 import colorsys
 import math
 import random
-import os
 
 import Settings
 import Objects

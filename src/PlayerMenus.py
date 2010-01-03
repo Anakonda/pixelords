@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import pygame
-import os
 
 import Settings
 import Functions
@@ -9,7 +8,6 @@ import Functions
 class playerMenu:
 	def __init__(self):
 		self.done = False
-
 		self.init()
 
 	def draw(self, game, i): # Draw the menu
@@ -17,8 +15,6 @@ class playerMenu:
 
 	def event(self, event, keys): # Take keyboard events
 		pass
-		
-		
 
 class shipChooser(playerMenu):
 	def init(self):

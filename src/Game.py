@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import pygame
-import math
 import os
 import random
 
-import Menus
 import Settings
 import Functions
-import Messages
 import Objects
 import Player
-import Sound
 
 class Game:
 	def __init__(self, engine):

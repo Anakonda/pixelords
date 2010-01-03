@@ -2,7 +2,6 @@
 
 import pygame
 import math
-import os
 import random
 
 import Settings

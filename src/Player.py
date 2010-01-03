@@ -5,7 +5,6 @@ import random
 
 import Settings
 import PlayerMenus
-import Objects
 import Ship
 
 class Player:

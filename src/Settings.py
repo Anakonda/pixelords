@@ -2,7 +2,6 @@
 
 import pygame
 import ConfigParser
-import os
 
 import Weapons
 import ShipTypes

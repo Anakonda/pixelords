@@ -3,6 +3,7 @@
 import pygame
 import os
 import random
+
 try:
 	import mutagen.oggvorbis
 	mutagenEnabled = True
