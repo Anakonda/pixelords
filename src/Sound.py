@@ -17,7 +17,7 @@ class Sound:
 	def __init__(self, game):
 		self.game = game
 
-		pygame.mixer.init()
+		pygame.mixer.init(44100, -16, 2, 1024)
 
 		pygame.mixer.music.set_volume(Settings.musicVolume)
 		pygame.mixer.music.set_endevent(pygame.constants.USEREVENT)
