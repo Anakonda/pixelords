@@ -25,7 +25,7 @@ class Menu:
 
 			pygame.display.update()
 			self.engine.clock.tick(30)
-	
+
 	def event(self):
 		for event in pygame.event.get():
 			self.engine.globalEvent(event)
@@ -71,7 +71,7 @@ class Menu:
 			self.x, self.y = location
 			self.size = size
 			self.text = text
-			
+
 		def draw(self, menu):
 			text = pygame.font.Font(menu.engine.font, self.size).render(self.text, True, (255,255,255))
 			menu.engine.screen.blit(text, (self.x, self.y))
@@ -82,7 +82,7 @@ class Menu:
 			self.sizex, self.sizey = size
 			self.text = text
 			self.action = action
-			
+
 		def draw(self, menu):
 			menu.engine.screen.fill((0,128,0),((self.x,self.y),(self.sizex,self.sizey)))
 
@@ -95,7 +95,7 @@ class Menu:
 			self.sizex, self.sizey = size
 			self.variable = variable
 			self.returnValue = returnValue
-			
+
 		def draw(self, menu):
 			if self.variable:
 				menu.engine.screen.fill((0,128,0),((self.x,self.y),(self.sizex,self.sizey)))
@@ -118,7 +118,7 @@ class Menu:
 			self.returnValue = returnValue
 
 			self.isDraggable = True
-			
+
 		def draw(self, menu):
 			menu.engine.screen.fill((0,128,0),((self.x,self.y),(self.sizex,self.sizey)))
 			menu.engine.screen.fill((255,255,255),((self.x-self.sizex/20+(self.variable-self.valueRange[0])*(self.sizex/(self.valueRange[1]-self.valueRange[0])),self.y-0.1*self.sizey),(self.sizex/10,1.2*self.sizey)))

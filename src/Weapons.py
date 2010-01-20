@@ -35,7 +35,7 @@ class Weapon:
 		pass
 
 	def setImage(self, image): # Set weapon icon
-		self.image = pygame.transform.smoothscale(pygame.image.load(Functions.gfxPath(image)).convert_alpha(), (18,18))
+		self.image = pygame.transform.scale(pygame.image.load(Functions.gfxPath(image)).convert_alpha(), (18,18))
 
 	def activate(self, ship, initiation): # Use the weapon
 		if (not(self.loading) or self.continuousLoad) and self.loaded >= self.activationCost and self.shotDelayStatus == 0:
@@ -74,7 +74,7 @@ class Weapon:
 class Cannon(Weapon):
 	def init(self):
 		self.name = "Cannon"
-		self.loadSpeed = 0.75
+		self.loadSpeed = 1.25
 		self.recoil = 1
 		self.sound = 3
 
@@ -86,10 +86,10 @@ class Cannon(Weapon):
 class Missiles(Weapon):
 	def init(self):
 		self.name = "Missiles"
-		self.loadSpeed = 0.3
+		self.loadSpeed = 0.5
 		self.loading = False
 		self.activationCost = 50
-		self.shotDelay = 20
+		self.shotDelay = 12
 		self.shotDelayVariation = 2
 		self.recoil = 0.2
 		self.sound = 3
@@ -102,7 +102,7 @@ class Missiles(Weapon):
 class Shotgun(Weapon):
 	def init(self):
 		self.name = "Shotgun"
-		self.loadSpeed = 1.5
+		self.loadSpeed = 2.5
 		self.recoil = 0.5
 		self.sound = 4
 
@@ -114,7 +114,7 @@ class Shotgun(Weapon):
 class Banana(Weapon):
 	def init(self):
 		self.name = "Banana"
-		self.loadSpeed = 0.5
+		self.loadSpeed = 0.85
 		self.recoil = 0.2
 
 		self.setImage("banana.png")
@@ -125,11 +125,11 @@ class Banana(Weapon):
 class MachineGun(Weapon):
 	def init(self):
 		self.name = "MachineGun"
-		self.loadSpeed = 0.3
+		self.loadSpeed = 0.5
 		self.loading = False
 		self.recoil = 0.075
 		self.activationCost = 3
-		self.shotDelay = 8
+		self.shotDelay = 5
 		self.shotDelayVariation = 5
 		self.sound = 2
 		self.setImage("machinegun_icon.png")
@@ -140,7 +140,7 @@ class MachineGun(Weapon):
 class Flamer(Weapon):
 	def init(self):
 		self.name = "Flamer"
-		self.loadSpeed = 0.20
+		self.loadSpeed = 0.3
 		self.activationCost = 1.00
 		self.continuousLoad = True
 		self.probability = 0.5
@@ -153,8 +153,9 @@ class Flamer(Weapon):
 class Laser(Weapon):
 	def init(self):
 		self.name = "Laser"
-		self.loadSpeed = 0.25
-		self.loading = False
+		self.loadSpeed = 0.4
+		self.loading = True
+		self.continuousLoad = True
 		self.activationCost = 0.5
 		self.sound = 8
 		self.soundSingle = True
@@ -162,12 +163,12 @@ class Laser(Weapon):
 		self.setImage("laser_icon.png")
 
 	def fire(self, ship):
-		self.shootObject(ship, Objects.Laser, 10, 1, 1, 0.05, 1, 0)
+		self.shootObject(ship, Objects.Laser, 10, 1, 1, 0, 1, 0)
 
 class Rifle(Weapon):
 	def init(self):
 		self.name = "Rifle"
-		self.loadSpeed = 0.5
+		self.loadSpeed = 0.85
 		self.recoil = 2
 		self.sound = 1
 
@@ -179,7 +180,7 @@ class Rifle(Weapon):
 class Bomber(Weapon):
 	def init(self):
 		self.name = "Bomber"
-		self.loadSpeed = 0.5
+		self.loadSpeed = 0.85
 
 		self.setImage("bomb.png")
 
@@ -189,7 +190,7 @@ class Bomber(Weapon):
 class Backshot(Weapon):
 	def init(self):
 		self.name = "Backshot"
-		self.loadSpeed = 0.5
+		self.loadSpeed = 0.85
 		self.recoil = -3
 		self.sound = 3
 		self.setImage("backshot_icon.png")
@@ -200,7 +201,7 @@ class Backshot(Weapon):
 class Reverse(Weapon):
 	def init(self):
 		self.name = "Reverse"
-		self.loadSpeed = 0.2
+		self.loadSpeed = 0.3
 		self.activationCost = 0.75
 		self.continuousLoad = True
 		self.recoil = 0.04
@@ -213,7 +214,7 @@ class Reverse(Weapon):
 class Dirt(Weapon):
 	def init(self):
 		self.name = "Dirt"
-		self.loadSpeed = 1
+		self.loadSpeed = 1.7
 		self.recoil = 0.15
 
 		self.setImage("dirt.png")
@@ -224,7 +225,7 @@ class Dirt(Weapon):
 class Disruptor(Weapon):
 	def init(self):
 		self.name = "Disruptor"
-		self.loadSpeed = 0.1
+		self.loadSpeed = 0.2
 
 	def fire(self, ship):
 		self.shootObject(ship, Objects.Disruptionball, 20, 5)
@@ -232,7 +233,7 @@ class Disruptor(Weapon):
 class Larpa(Weapon):
 	def init(self):
 		self.name = "Larpa"
-		self.loadSpeed = 0.5
+		self.loadSpeed = 0.85
 
 	def fire(self, ship):
 		self.shootObject(ship, Objects.Larpa, 20, 5)
@@ -240,7 +241,7 @@ class Larpa(Weapon):
 class Halo(Weapon):
 	def init(self):
 		self.name = "Halo"
-		self.loadSpeed = 0.75
+		self.loadSpeed = 1.25
 		self.sound = 4
 		self.setImage("halo_icon.png")
 
@@ -250,7 +251,7 @@ class Halo(Weapon):
 class Mine(Weapon):
 	def init(self):
 		self.name = "Mine"
-		self.loadSpeed = 0.1
+		self.loadSpeed = 0.2
 		self.sound = 6
 
 		self.setImage("mine.png")
@@ -261,7 +262,7 @@ class Mine(Weapon):
 class Eraser(Weapon):
 	def init(self):
 		self.name = "Eraser"
-		self.loadSpeed = 0.075
+		self.loadSpeed = 0.1
 		self.continuousLoad = False
 		self.setImage("eraser_icon.png")
 
@@ -273,7 +274,7 @@ class Eraser(Weapon):
 class Radiation(Weapon):
      def init(self):
           self.name = "Radiation"
-          self.loadSpeed = 0.3
+          self.loadSpeed = 0.5
           self.recoil = 0
 
      def fire(self, ship):
@@ -282,8 +283,19 @@ class Radiation(Weapon):
 class InstaGun(Weapon):
 	def init(self):
 		self.name = "InstaGun"
-		self.loadSpeed = 0.5
+		self.loadSpeed = 0.85
 		self.sound = 7
 
 	def fire(self, ship):
 		self.shootObject(ship, Objects.InstaRail, 10, 1, 1, 0, 1, 0)
+
+class WaterGun(Weapon):
+	def init(self):
+		self.name = "Water Gun"
+		self.loadSpeed = 1.25
+		self.recoil = 1
+		self.sound = 3
+		self.setImage("waterball.png")
+
+	def fire(self, ship):
+		self.shootObject(ship, Objects.waterball, 12, 3)

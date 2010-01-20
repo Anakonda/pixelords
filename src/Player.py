@@ -24,7 +24,7 @@ class Player:
 		self.shoot1 = False
 		self.shoot2 = False
 
-		self.respawnWait = 200
+		self.respawnWait = 150
 
 		self.menuStage = 1
 		self.menu = PlayerMenus.shipChooser()
@@ -38,7 +38,7 @@ class Player:
 
 	def menuDraw(self, i):
 		self.menu.draw(self.game.engine, self.keys, i)
-		
+
 	def createShip(self): # Create a ship
 		self.spawnMessage = True
 		self.ship = Ship.Ship(self.game, self, 0,0,0,0, self.color)
@@ -50,14 +50,14 @@ class Player:
 		if self.lives > 0:
 			if not(self.ship.active):
 				if self.respawnWait <= 0:
-					self.respawnWait = 300
+					self.respawnWait = 150
 					self.spawnMessage = False
 
 					self.ship.spawn()
 				else:
 					self.respawnWait -= 1
 
-					if self.respawnWait == 299:
+					if self.respawnWait == 149:
 						self.lives -= 1
 
 						if self == self.ship.lastHitter:
@@ -74,6 +74,11 @@ class Player:
 						self.spawnMessage = True
 						self.shoot1 = False
 						self.shoot2 = False
+
+						self.ship.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
+						self.ship.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
+
+
 			else:
 				self.shoot()
 		elif self.active:
@@ -104,7 +109,7 @@ class Player:
 
 		if Settings.height > map.height:
 			top = (map.height-(Settings.height-20))/2
-			self.game.screen.fill((0,0,0),((i*Settings.width/Settings.playerAmount,0),(Settings.width/Settings.playerAmount,-top)))
+			self.game.engine.screen.fill((0,0,0),((i*Settings.width/Settings.playerAmount,0),(Settings.width/Settings.playerAmount,-top)))
 		elif self.ship.y-(Settings.height-20)/2 < 0:
 			top = 0
 		elif self.ship.y > map.height-(Settings.height-20)/2:

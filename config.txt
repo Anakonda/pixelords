@@ -19,7 +19,7 @@ lives: 5
 killLimit: 99
 resetWeaponsOnDeath: true
 insta: false
-bonusDelay: 2000
+bonusDelay: 1200
 loadingSpeed: 100
 shipStrength: 100
 

@@ -41,7 +41,7 @@ coreLightWeapons = [Weapons.Cannon, Weapons.Shotgun, Weapons.Flamer, Weapons.Las
 extraLightWeapons = [Weapons.Radiation]
 
 coreHeavyWeapons = [Weapons.Bomber, Weapons.Backshot, Weapons.Reverse, Weapons.Dirt, Weapons.Halo, Weapons.Eraser, Weapons.Mine]
-extraHeavyWeapons = [Weapons.Disruptor, Weapons.Larpa]
+extraHeavyWeapons = [Weapons.Disruptor, Weapons.Larpa, Weapons.WaterGun]
 
 lightWeapons = coreLightWeapons #+extraLightWeapons
 heavyWeapons = coreHeavyWeapons #+extraHeavyWeapons

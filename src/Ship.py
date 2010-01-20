@@ -32,7 +32,7 @@ class Ship(Objects.Object):
 		self.shipModel = shipType()
 
 		self.shipModel.hp = (13*self.shipModel.strength+60)*(Settings.shipStrength/100.0)
-		self.shipModel.acceleration = 0.0045*self.shipModel.acceleration+0.022
+		self.shipModel.acceleration = 0.0075*self.shipModel.acceleration+0.040
 		self.shipModel.loadingSpeed = 15*self.shipModel.loadingSpeed+40
 
 		self.sprite(self.shipModel.image)
@@ -78,10 +78,6 @@ class Ship(Objects.Object):
 
 	def destroy(self, map): # Destroy the ship
 		if self.active:
-			if Settings.resetWeaponsOnDeath:
-				self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
-				self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
-
 			self.active = False
 
 	def check(self, map): # Check for actions
@@ -95,10 +91,14 @@ class Ship(Objects.Object):
 		self.heavyWeapon.check(self)
 
 	def onGroundHit(self,map,x,y):
-		if map.mask[x][y] == map.maskimage.map_rgb((150,90,20,255)): # Dirt
+		pixel = map.mask[x][y]
+		if pixel == map.maskimage.map_rgb((150,90,20,255)): # Dirt
 			self.dx -= self.dx/5
-			self.dy -= self.dy/5 + 0.008
-		elif map.mask[x][y] == map.maskimage.map_rgb((255,0,0,255)): # Insta death area
+			self.dy -= self.dy/5 + 1.7*0.008
+		elif pixel == map.maskimage.map_rgb((0,0,255,255)): # Water
+			self.dx -= self.dx/50
+			self.dy -= self.dy/50 + 1.7*0.024
+		elif pixel == map.maskimage.map_rgb((255,0,0,255)): # Insta death area
 			self.explode(map)
 		else:
 			if self.y-self.oldy != 0 or self.x-self.oldx != 0:

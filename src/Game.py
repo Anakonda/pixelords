@@ -99,6 +99,7 @@ class Game:
 					for player in self.players:
 						player.createShip()
 			else:
+				self.map.water(self.engine)
 				for object in self.objects: # Process objects
 					object.run(self.map)
 
@@ -149,9 +150,9 @@ class Game:
 			self.map.draw()
 
 			if self.inMenu:
-				self.engine.clock.tick(30)
+				self.engine.clock.tick(20)
 			else:
-				self.engine.clock.tick(100)
+				self.engine.clock.tick(60)
 
 class Map:
 	def __init__(self): # Load the map
@@ -169,6 +170,16 @@ class Map:
 		self.screenImage = self.visual.convert()
 
 		self.redrawAreas = []
+		self.waters = []
+		self.waterId = 0
+		self.waterRandomizeDelay = 0
+		self.waterSpeed = 150
+
+		waterColor = self.maskimage.map_rgb((0,0,255,255))
+		for x in range(0,self.width):
+			for y in range(0,self.height):
+				if self.mask[x][y] == waterColor:
+					self.waters.append((x,y))
 
 	def draw(self): # Draw screenImage
 		for area in self.redrawAreas:
@@ -177,3 +188,65 @@ class Map:
 
 	def redraw(self, start, end): # Collect areas that need redrawing
 		self.redrawAreas.append((start, end))
+
+	def water(self, engine):
+		if self.waterSpeed > 0:
+			if self.waterRandomizeDelay == 0:
+				self.waterRandomizeDelay = 200
+				random.shuffle(self.waters)
+				"""if self.waterSpeed > 25 and engine.clock.get_fps() < 50:
+					self.waterSpeed -= self.waterSpeed/20
+					engine.messageBox.addMessage("Decreasing water speed for better performance (" + str(self.waterSpeed) + ")")"""
+			else:
+				self.waterRandomizeDelay -= 1
+			emptyColor = self.maskimage.map_rgb((0,0,0,255))
+			if self.waterSpeed > len(self.waters):
+				rounds = len(self.waters)
+			else:
+				rounds = self.waterSpeed
+			for i in range(rounds):
+				self.waterId += 1
+				if self.waterId >= len(self.waters):
+					self.waterId = 0
+				water = self.waters[self.waterId]
+				ox,oy = water
+				if ox != None:
+					x,y = (ox,oy)
+
+					try:
+						for repeat in range(2):
+							if x < 0 or y < 0:
+								raise IndexError
+							mask2l = self.mask[x-1][y]
+							mask2r = self.mask[x+1][y]
+							mask2d = self.mask[x][y+1]
+							if mask2d != emptyColor and mask2l == emptyColor and mask2r == emptyColor:
+								if random.randint(0,1):
+									x -= 1
+								else:
+									x += 1
+							elif mask2l == emptyColor and mask2r != emptyColor:
+								x -= 1
+							elif mask2l != emptyColor and mask2r == emptyColor:
+								x += 1
+
+							if self.mask[x][y+1] == emptyColor:
+								y += 1
+					except IndexError:
+						self.waters[self.waterId] = (None,None)
+						backgroundColor = self.background[ox][oy]
+						self.mask[ox][oy] = (0,0,0)
+						self.visual.set_at((ox,oy),backgroundColor)
+						self.screenImage.set_at((ox,oy), backgroundColor)
+						self.waters[self.waterId] = (x,y)
+					else:
+						if x != ox or y != oy:
+							visualColor = self.visual.get_at((ox,oy))
+							backgroundColor = self.background[ox][oy]
+							self.mask[ox][oy] = (0,0,0)
+							self.mask[x][y] = (0,0,255)
+							self.visual.set_at((ox,oy),backgroundColor)
+							self.visual.set_at((x,y),visualColor)
+							self.screenImage.set_at((ox,oy), backgroundColor)
+							self.screenImage.set_at((x,y), visualColor)
+							self.waters[self.waterId] = (x,y)
