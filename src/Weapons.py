@@ -156,7 +156,7 @@ class Laser(Weapon):
 		self.loadSpeed = 0.4
 		self.loading = True
 		self.continuousLoad = True
-		self.activationCost = 0.5
+		self.activationCost = 1
 		self.sound = 8
 		self.soundSingle = True
 

@@ -24,7 +24,7 @@ class Player:
 		self.shoot1 = False
 		self.shoot2 = False
 
-		self.respawnWait = 150
+		self.respawnWait = 125
 
 		self.menuStage = 1
 		self.menu = PlayerMenus.shipChooser()
@@ -77,7 +77,6 @@ class Player:
 
 						self.ship.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
 						self.ship.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
-
 
 			else:
 				self.shoot()
