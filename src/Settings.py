@@ -33,6 +33,7 @@ insta = config.getboolean("Game rules", "insta")
 bonusDelay = config.getint("Game rules", "bonusDelay")
 loadingSpeed = config.getint("Game rules", "loadingSpeed")
 shipStrength = config.getint("Game rules", "shipStrength")
+waterSpeed = config.getint("Game rules", "waterSpeed")
 
 map = config.get("Game rules", "map")
 gfxTheme = config.get("Game rules", "gfxTheme")
@@ -44,7 +45,7 @@ coreHeavyWeapons = [Weapons.Bomber, Weapons.Backshot, Weapons.Reverse, Weapons.D
 extraHeavyWeapons = [Weapons.Disruptor, Weapons.Larpa, Weapons.WaterGun]
 
 lightWeapons = coreLightWeapons #+extraLightWeapons
-heavyWeapons = coreHeavyWeapons #+extraHeavyWeapons
+heavyWeapons = coreHeavyWeapons +extraHeavyWeapons
 
 if insta:
 	lightWeapons = [Weapons.InstaGun]

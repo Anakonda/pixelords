@@ -22,6 +22,7 @@ insta: false
 bonusDelay: 1200
 loadingSpeed: 100
 shipStrength: 100
+waterSpeed: 0
 
 map: cave
 gfxTheme: default

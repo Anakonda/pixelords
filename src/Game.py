@@ -173,7 +173,6 @@ class Map:
 		self.waters = []
 		self.waterId = 0
 		self.waterRandomizeDelay = 0
-		self.waterSpeed = 150
 
 		waterColor = self.maskimage.map_rgb((0,0,255,255))
 		for x in range(0,self.width):
@@ -190,20 +189,20 @@ class Map:
 		self.redrawAreas.append((start, end))
 
 	def water(self, engine):
-		if self.waterSpeed > 0:
+		if Settings.waterSpeed > 0:
 			if self.waterRandomizeDelay == 0:
 				self.waterRandomizeDelay = 200
 				random.shuffle(self.waters)
-				"""if self.waterSpeed > 25 and engine.clock.get_fps() < 50:
-					self.waterSpeed -= self.waterSpeed/20
-					engine.messageBox.addMessage("Decreasing water speed for better performance (" + str(self.waterSpeed) + ")")"""
+				"""if Settings.waterSpeed > 25 and engine.clock.get_fps() < 50:
+					Settings.waterSpeed -= Settings.waterSpeed/20
+					engine.messageBox.addMessage("Decreasing water speed for better performance (" + str(Settings.waterSpeed) + ")")"""
 			else:
 				self.waterRandomizeDelay -= 1
 			emptyColor = self.maskimage.map_rgb((0,0,0,255))
-			if self.waterSpeed > len(self.waters):
+			if Settings.waterSpeed > len(self.waters):
 				rounds = len(self.waters)
 			else:
-				rounds = self.waterSpeed
+				rounds = Settings.waterSpeed
 			for i in range(rounds):
 				self.waterId += 1
 				if self.waterId >= len(self.waters):

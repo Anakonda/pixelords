@@ -118,7 +118,7 @@ class Player:
 
 		if self.ship.disruption > 0:
 			if random.randint(0,10) == 0:
-				self.game.screen.blit(map.screenImage, (int(i*Settings.width/Settings.playerAmount),0), ((int(left),int(top)), (Settings.width/Settings.playerAmount+1,Settings.height-20)))
+				self.game.engine.screen.blit(map.screenImage, (int(i*Settings.width/Settings.playerAmount),0), ((int(left),int(top)), (Settings.width/Settings.playerAmount+1,Settings.height-20)))
 		else:
 			self.game.engine.screen.blit(map.screenImage, (int(i*Settings.width/Settings.playerAmount),0), ((int(left),int(top)), (Settings.width/Settings.playerAmount+1,Settings.height-20)))
 
