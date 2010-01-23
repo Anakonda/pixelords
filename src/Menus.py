@@ -9,7 +9,7 @@ import MenuSystem
 class MainMenu(MenuSystem.Menu):
 	def init(self):
 		self.addWidget(self.Label((Settings.width/6,Settings.height/24),42,"War of Pixelords"))
-		self.addWidget(self.Label((Settings.width-100,Settings.height-20),12,"Version: git-menu"))
+		self.addWidget(self.Label((10,Settings.height-20),12,"Version: git-experimental"))
 
 		self.addWidget(self.Button((Settings.width/6,Settings.height/6),(Settings.width/6,Settings.height/6),"Play!", self.startGame))
 		self.addWidget(self.Button((3*Settings.width/6,Settings.height/6),(Settings.width/6,Settings.height/6),"Quit", self.quit))

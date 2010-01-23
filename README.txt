@@ -1,7 +1,6 @@
  About
 -------
-Version: 0.1.0
-Date: December 22, 2009
+Version: git-experimental
 
 War of Pixelords is a free, open-source, multiplayer shooting game. It is fully
 made with Python using Pygame. Two or more players control ships that are
