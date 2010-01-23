@@ -13,9 +13,9 @@ class Menu:
 
 		self.running = True
 		self.init()
+		self.draw()
 		while self.running:
 			self.event()
-			self.draw()
 
 			if Settings.showFPS:
 				self.engine.screen.blit(self.engine.text.render(str(int(self.engine.clock.get_fps())), True, (255,0,0)), (Settings.width-40,10))
@@ -27,12 +27,14 @@ class Menu:
 			self.engine.clock.tick(30)
 
 	def event(self):
+		needRedraw = False
 		for event in pygame.event.get():
 			self.engine.globalEvent(event)
 
 			if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 				self.quit()
 			elif event.type == pygame.MOUSEBUTTONDOWN:
+				needRedraw = True
 				x = pygame.mouse.get_pos()[0]/Settings.scale
 				y = pygame.mouse.get_pos()[1]/Settings.scale
 				for widget in self.widgets:
@@ -48,8 +50,12 @@ class Menu:
 					x = pygame.mouse.get_pos()[0]/Settings.scale
 					y = pygame.mouse.get_pos()[1]/Settings.scale
 					self.dragging.action(x,y)
+					needRedraw = True
 				elif event.type == pygame.MOUSEBUTTONUP:
 					self.dragging = None
+
+		if needRedraw:
+			self.draw()
 
 	def addWidget(self, widget):
 		self.widgets.append(widget)
