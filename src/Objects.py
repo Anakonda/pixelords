@@ -38,6 +38,8 @@ class Object(pygame.sprite.Sprite):
 		self.onShipCollision = True
 		self.onShipDamage = 0
 		self.onShipExplode = True
+		self.hitsWater = False
+		self.floats = False
 
 		self.thrust = False
 		self.rotate = 0
@@ -102,6 +104,15 @@ class Object(pygame.sprite.Sprite):
 
 			self.explode(map)
 
+	def onWaterHit(self,map,x,y): # Triggered on water hit
+		if self.hitsWater:
+			self.onGroundHit(map,x,y)
+		else:
+			self.dx -= self.dx/50
+			self.dy -= self.dy/50 + 0.01
+			if self.floats:
+				self.dy -= 0.025
+
 	def onBorderHit(self,map,x,y): # Triggered on map border hit
 		self.onGroundHit(map,x,y)
 
@@ -143,10 +154,14 @@ class Object(pygame.sprite.Sprite):
 		for x in xrange:
 			for y in yrange:
 				if not(groundHit):
+					maskValue = map.mask[x][y]
 					if x >= map.width or x < 0 or y >=  map.height or y < 0:
 						groundHit = True
 						self.onBorderHit(map,x,y)
-					elif map.mask[x][y] != map.maskimage.map_rgb((0, 0, 0, 255)) and (self.isShip or map.mask[x][y] != map.maskimage.map_rgb((0, 0, 255, 255))):
+					elif maskValue == map.maskimage.map_rgb((0, 0, 255, 255)):
+						groundHit = True
+						self.onWaterHit(map,x,y)
+					elif maskValue != map.maskimage.map_rgb((0, 0, 0, 255)):
 						groundHit = True
 						self.onGroundHit(map,x,y)
 
@@ -283,6 +298,7 @@ class RepairKit(Object):
 		self.explosionSizeFactor = 2
 		self.explosionParticleFactor = 2
 		self.size = 10
+		self.floats = True
 
 		self.randomizeLocation(self.game.map)
 
@@ -302,6 +318,8 @@ class WeaponChanger(Object):
 		self.explosionSizeFactor = 2
 		self.explosionParticleFactor = 2
 		self.size = 10
+		self.floats = True
+
 		self.heavy = random.randint(0,1)
 		if self.heavy:
 			self.newWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
@@ -334,6 +352,7 @@ class ThrustFlame(Object):
 		self.lifetime = 10
 
 		self.explosionSizeFactor = 50
+		self.hitsWater = True
 
 		self.checkCollisions = False
 		self.explosionCollision = False
@@ -367,6 +386,7 @@ class Smoke(Object):
 		self.onGroundExplode = False
 		self.onShipCollision = False
 		self.explosionCollision = False
+		self.floats = True
 
 		self.lightness = random.randint(170,255)
 		self.color = (self.lightness, self.lightness, self.lightness)
@@ -577,6 +597,7 @@ class Mine(Object):
 		self.explosionSizeFactor = 2.5
 		self.explosionParticleFactor = 2
 		self.size = 10
+		self.floats = True
 
 		self.sprite("mine.png")
 
@@ -703,7 +724,8 @@ class Dirtball(Object):
 			if (x-self.x)/(size+0.01) >= -1:
 				for y in range(int((-math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y), int((math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y)):
 					if y < map.height and y > 0:
-						if map.mask[x][y] == map.maskimage.map_rgb((0,0,0,255)):
+						maskValue = map.mask[x][y]
+						if maskValue == map.maskimage.map_rgb((0,0,0,255)) or maskValue == map.maskimage.map_rgb((0,0,255,255)):
 							rand = random.randint(-20,20)
 
 							map.mask[x][y] = (150,90,20,255)
@@ -822,14 +844,13 @@ class RifleBullet(Object):
 		self.size = 2
 		self.onShipDamage = 50
 
-class waterball(Object):
+class WaterBall(Object):
 	def init(self):
 		self.size = 3
 		self.explosionSizeFactor = 5
 		self.explosionCollision = False
-
-		self.color = (0,0,255)
 		self.airResistance = 5
+		self.hitsWater = True
 
 		self.sprite("waterball.png")
 

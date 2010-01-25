@@ -298,4 +298,4 @@ class WaterGun(Weapon):
 		self.setImage("waterball.png")
 
 	def fire(self, ship):
-		self.shootObject(ship, Objects.waterball, 12, 3)
+		self.shootObject(ship, Objects.WaterBall, 12, 3)

@@ -161,6 +161,7 @@ class Map:
 		self.mask = pygame.PixelArray(self.maskimage)
 		self.backgroundimage = pygame.image.load(os.path.join("maps",Settings.map,"background.jpg")).convert()
 		self.background = pygame.PixelArray(self.backgroundimage)
+
 		self.width = self.maskimage.get_width()
 		self.height = self.maskimage.get_height()
 

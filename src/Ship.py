@@ -24,6 +24,7 @@ class Ship(Objects.Object):
 
 		self.isSprite = True
 		self.isShip = True
+		self.floats = True
 
 		self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
 		self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
@@ -95,9 +96,6 @@ class Ship(Objects.Object):
 		if pixel == map.maskimage.map_rgb((150,90,20,255)): # Dirt
 			self.dx -= self.dx/5
 			self.dy -= self.dy/5 + 1.7*0.008
-		elif pixel == map.maskimage.map_rgb((0,0,255,255)): # Water
-			self.dx -= self.dx/50
-			self.dy -= self.dy/50 + 1.7*0.024
 		elif pixel == map.maskimage.map_rgb((255,0,0,255)): # Insta death area
 			self.explode(map)
 		else:
