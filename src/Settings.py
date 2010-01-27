@@ -45,7 +45,7 @@ coreHeavyWeapons = [Weapons.Bomber, Weapons.Backshot, Weapons.Reverse, Weapons.D
 extraHeavyWeapons = [Weapons.Disruptor, Weapons.Larpa, Weapons.WaterGun]
 
 lightWeapons = coreLightWeapons #+extraLightWeapons
-heavyWeapons = coreHeavyWeapons +extraHeavyWeapons
+heavyWeapons = coreHeavyWeapons #+extraHeavyWeapons
 
 if insta:
 	lightWeapons = [Weapons.InstaGun]

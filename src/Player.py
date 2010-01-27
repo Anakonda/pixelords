@@ -174,13 +174,13 @@ class Player:
 			elif event.type == pygame.KEYUP and event.key == self.keys[0]:
 				self.ship.thrust = False
 			elif event.type == pygame.KEYDOWN and event.key == self.keys[1]:
-				self.ship.rotate = -1
-			elif event.type == pygame.KEYUP and event.key == self.keys[1] and self.ship.rotate == -1:
-				self.ship.rotate = 0
+				self.ship.rotation = -1
+			elif event.type == pygame.KEYUP and event.key == self.keys[1] and self.ship.rotation == -1:
+				self.ship.rotation = 0
 			elif event.type == pygame.KEYDOWN and event.key == self.keys[2]:
-				self.ship.rotate = 1
-			elif event.type == pygame.KEYUP and event.key == self.keys[2] and self.ship.rotate == 1:
-				self.ship.rotate = 0
+				self.ship.rotation = 1
+			elif event.type == pygame.KEYUP and event.key == self.keys[2] and self.ship.rotation == 1:
+				self.ship.rotation = 0
 			elif event.type == pygame.KEYDOWN and event.key == self.keys[4]:
 				self.shoot1 = True
 			elif event.type == pygame.KEYUP and event.key == self.keys[4]:

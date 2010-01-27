@@ -108,8 +108,11 @@ class Object(pygame.sprite.Sprite):
 		if self.hitsWater:
 			self.onGroundHit(map,x,y)
 		else:
-			self.dx -= self.dx/50
-			self.dy -= self.dy/50 + 0.01
+			self.dx -= self.dx/75
+			self.dy -= self.dy/75 + 0.01
+
+			self.rotate -= self.rotate/40.0
+
 			if self.floats:
 				self.dy -= 0.025
 
@@ -154,16 +157,17 @@ class Object(pygame.sprite.Sprite):
 		for x in xrange:
 			for y in yrange:
 				if not(groundHit):
-					maskValue = map.mask[x][y]
-					if x >= map.width or x < 0 or y >=  map.height or y < 0:
+					if x >= map.width or x < 0 or y >= map.height or y < 0:
 						groundHit = True
 						self.onBorderHit(map,x,y)
-					elif maskValue == map.maskimage.map_rgb((0, 0, 255, 255)):
-						groundHit = True
-						self.onWaterHit(map,x,y)
-					elif maskValue != map.maskimage.map_rgb((0, 0, 0, 255)):
-						groundHit = True
-						self.onGroundHit(map,x,y)
+					else:
+						maskValue = map.mask[x][y]
+						if maskValue == map.maskimage.map_rgb((0, 0, 255, 255)):
+							groundHit = True
+							self.onWaterHit(map,x,y)
+						elif maskValue != map.maskimage.map_rgb((0, 0, 0, 255)):
+							groundHit = True
+							self.onGroundHit(map,x,y)
 
 				if not(shipHit) and not(self.isShip):
 					for player in self.game.players:
@@ -298,7 +302,6 @@ class RepairKit(Object):
 		self.explosionSizeFactor = 2
 		self.explosionParticleFactor = 2
 		self.size = 10
-		self.floats = True
 
 		self.randomizeLocation(self.game.map)
 
@@ -318,7 +321,6 @@ class WeaponChanger(Object):
 		self.explosionSizeFactor = 2
 		self.explosionParticleFactor = 2
 		self.size = 10
-		self.floats = True
 
 		self.heavy = random.randint(0,1)
 		if self.heavy:
@@ -451,8 +453,6 @@ class Eraser(Object):
 						if y < map.height and y >= 0:
 							maskValue = map.mask[x][y]
 							if maskValue != map.maskimage.map_rgb((127, 127, 127, 255)) and maskValue != map.maskimage.map_rgb((255, 0, 0, 255)) and maskValue != map.maskimage.map_rgb((0, 0, 0, 255)):
-								if maskValue == map.maskimage.map_rgb((0, 0, 255, 255)):
-									map.waters.remove((x,y))
 								map.mask[x][y] = (0, 0, 0)
 								map.visual.set_at((x,y),map.background[x][y])
 		else:
@@ -479,6 +479,7 @@ class Flame(Object):
 		self.onShipDamage = 1.00
 		self.onShipExplode = False
 		self.explosionCollision = False
+		self.hitsWater = True
 
 		self.red = random.randint(170,255)
 		self.green = self.red
@@ -500,6 +501,10 @@ class Flame(Object):
 		self.x = x
 		self.y = y
 		self.destroy(map)
+
+	def onWaterHit(self,map,x,y):
+		self.game.objects.append(Smoke(self.game, self.owner, self.x+self.dx, self.y+self.dy))
+		self.onGroundHit(map,x,y)
 
 class Laser(Object):
 	def init(self):

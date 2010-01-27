@@ -18,7 +18,7 @@ class Ship(Objects.Object):
 		self.airResistance = 10
 
 		self.thrust = False
-		self.rotate = 0
+		self.rotation = 0
 
 		self.disruption = 0
 
@@ -55,7 +55,7 @@ class Ship(Objects.Object):
 		self.angle = 3*math.pi/2
 
 		self.thrust = False
-		self.rotate = 0
+		self.rotation = 0
 
 		self.disruption = 0
 
@@ -82,6 +82,8 @@ class Ship(Objects.Object):
 			self.active = False
 
 	def check(self, map): # Check for actions
+		self.rotate = self.rotation
+
 		if self.hp < self.shipModel.hp/6:
 			self.hp -= self.shipModel.hp/10000.0
 

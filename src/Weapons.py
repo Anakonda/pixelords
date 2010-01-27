@@ -135,7 +135,7 @@ class MachineGun(Weapon):
 		self.setImage("machinegun_icon.png")
 
 	def fire(self, ship):
-		self.shootObject(ship, Objects.Bullet, 10, 5, 1.5, 0.025)
+		self.shootObject(ship, Objects.Bullet, 10, 8, 1.5, 0.025)
 
 class Flamer(Weapon):
 	def init(self):
@@ -204,7 +204,7 @@ class Reverse(Weapon):
 		self.loadSpeed = 0.3
 		self.activationCost = 0.75
 		self.continuousLoad = True
-		self.recoil = 0.04
+		self.recoil = 0.08
 		self.setImage("reverse_icon.png")
 
 	def fire(self, ship):

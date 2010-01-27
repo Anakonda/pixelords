@@ -175,11 +175,12 @@ class Map:
 		self.waterId = 0
 		self.waterRandomizeDelay = 0
 
-		waterColor = self.maskimage.map_rgb((0,0,255,255))
-		for x in range(0,self.width):
-			for y in range(0,self.height):
-				if self.mask[x][y] == waterColor:
-					self.waters.append((x,y))
+		if Settings.waterSpeed > 0:
+			waterColor = self.maskimage.map_rgb((0,0,255,255))
+			for x in range(0,self.width):
+				for y in range(0,self.height):
+					if self.mask[x][y] == waterColor:
+						self.waters.append((x,y))
 
 	def draw(self): # Draw screenImage
 		for area in self.redrawAreas:
@@ -194,9 +195,6 @@ class Map:
 			if self.waterRandomizeDelay == 0:
 				self.waterRandomizeDelay = 200
 				random.shuffle(self.waters)
-				"""if Settings.waterSpeed > 25 and engine.clock.get_fps() < 50:
-					Settings.waterSpeed -= Settings.waterSpeed/20
-					engine.messageBox.addMessage("Decreasing water speed for better performance (" + str(Settings.waterSpeed) + ")")"""
 			else:
 				self.waterRandomizeDelay -= 1
 			emptyColor = self.maskimage.map_rgb((0,0,0,255))
@@ -230,7 +228,7 @@ class Map:
 							elif mask2l != emptyColor and mask2r == emptyColor:
 								x += 1
 
-							if self.mask[x][y+1] == emptyColor:
+							if mask2d == emptyColor:
 								y += 1
 					except IndexError:
 						self.waters[self.waterId] = (None,None)
@@ -238,7 +236,6 @@ class Map:
 						self.mask[ox][oy] = (0,0,0)
 						self.visual.set_at((ox,oy),backgroundColor)
 						self.screenImage.set_at((ox,oy), backgroundColor)
-						self.waters[self.waterId] = (x,y)
 					else:
 						if x != ox or y != oy:
 							visualColor = self.visual.get_at((ox,oy))
