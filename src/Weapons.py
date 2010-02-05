@@ -99,6 +99,19 @@ class Missiles(Weapon):
 	def fire(self, ship):
 		self.shootObject(ship, Objects.Missile, 12, 1)
 
+class Bolts(Weapon):
+	def init(self):
+		self.name = "Homing bolts"
+		self.loadSpeed = 0.4
+		self.activationCost = 100
+		self.recoil = 0.1
+		self.sound = 3
+
+		self.setImage("bolt.png")
+
+	def fire(self, ship):
+		self.shootObject(ship, Objects.Bolt, 12, 8, 0.5, 0.2, 7)
+
 class Shotgun(Weapon):
 	def init(self):
 		self.name = "Shotgun"

@@ -218,7 +218,10 @@ class Map:
 							mask2l = self.mask[x-1][y]
 							mask2r = self.mask[x+1][y]
 							mask2d = self.mask[x][y+1]
-							if mask2d != emptyColor and mask2l == emptyColor and mask2r == emptyColor:
+
+							if mask2d == emptyColor:
+								y += 1
+							elif mask2d != emptyColor and mask2l == emptyColor and mask2r == emptyColor:
 								if random.randint(0,1):
 									x -= 1
 								else:
@@ -228,8 +231,6 @@ class Map:
 							elif mask2l != emptyColor and mask2r == emptyColor:
 								x += 1
 
-							if mask2d == emptyColor:
-								y += 1
 					except IndexError:
 						self.waters[self.waterId] = (None,None)
 						backgroundColor = self.background[ox][oy]

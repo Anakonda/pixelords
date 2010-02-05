@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pygame
+import colorsys
 import math
 import random
 
@@ -26,6 +27,7 @@ class Object(pygame.sprite.Sprite):
 		self.color = color
 		self.isSprite = False
 		self.rotateWithSpeed = False
+		self.colorize = False
 
 		self.explosionCollision = True
 		self.isShip = False
@@ -55,6 +57,16 @@ class Object(pygame.sprite.Sprite):
 		self.image = self.baseImage
 		self.rect = self.image.get_rect()
 		self.rect.center = (self.x, self.y)
+
+		if self.colorize:
+			for x in range(self.baseImage.get_width()):
+				for y in range(self.baseImage.get_height()):
+					ownhue = colorsys.rgb_to_hls(self.owner.color[0]/255.0, self.owner.color[1]/255.0, self.owner.color[2]/255.0)[0]
+					color = colorsys.rgb_to_hls(self.baseImage.get_at((x,y))[0]/255.0, self.baseImage.get_at((x,y))[1]/255.0, self.baseImage.get_at((x,y))[2]/255.0)
+
+					newcolor = colorsys.hls_to_rgb(ownhue, color[1], color[2])
+
+					self.baseImage.set_at((x,y), (newcolor[0]*255, newcolor[1]*255, newcolor[2]*255, self.baseImage.get_at((x,y))[3]))
 
 	def spriteDraw(self, map): # Sprite drawing
 		if self.angle != 0:
@@ -200,9 +212,9 @@ class Object(pygame.sprite.Sprite):
 
 		if self.rotateWithSpeed:
 			if self.dx >= 0:
-				self.angle = math.atan(self.dy/self.dx)+math.pi/2
+				self.angle = math.atan(self.dy/self.dx)
 			else:
-				self.angle = math.atan(self.dy/self.dx)+3*math.pi/2
+				self.angle = math.atan(self.dy/self.dx)+2*math.pi/2
 
 	def explode(self,map): # Explode
 		size = self.explosionSizeFactor*self.size
@@ -686,6 +698,46 @@ class Missile(Object):
 					self.thrust = False
 					self.activationTime = 10
 					self.target = None
+
+class Bolt(Object):
+	def init(self):
+		self.size = 4
+		self.explosionSizeFactor = 1.25
+		self.explosionParticleFactor = 0
+		self.onShipDamage = 15
+
+		self.airResistance = 20
+		self.rotateWithSpeed = True
+
+		self.activationTime = 5
+		self.target = None
+
+		self.acceleration = 0.1
+
+		self.sprite("bolt.png")
+
+	def check(self, map):
+		if self.activationTime > 0:
+			self.activationTime -= 1
+		else:
+			target = self.getClosestShip(500)
+			if target != None:
+				if self.target == None:
+					self.target = target
+				elif target == self.target:
+					if target.y > self.y:
+						self.dy += self.acceleration
+					else:
+						self.dy -= self.acceleration
+
+					if target.x > self.x:
+						self.dx += self.acceleration
+					else:
+						self.dx -= self.acceleration
+
+			else:
+				self.activationTime = 10
+				self.target = None
 
 class Bomb(Object):
 	def init(self):

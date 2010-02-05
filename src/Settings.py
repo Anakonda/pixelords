@@ -38,11 +38,11 @@ waterSpeed = config.getint("Game rules", "waterSpeed")
 map = config.get("Game rules", "map")
 gfxTheme = config.get("Game rules", "gfxTheme")
 
-coreLightWeapons = [Weapons.Cannon, Weapons.Shotgun, Weapons.Flamer, Weapons.Laser, Weapons.MachineGun, Weapons.Rifle, Weapons.Banana, Weapons.Missiles]
-extraLightWeapons = [Weapons.Radiation]
+coreLightWeapons = [Weapons.Bolts, Weapons.Cannon, Weapons.Shotgun, Weapons.Flamer, Weapons.Laser, Weapons.MachineGun, Weapons.Rifle, Weapons.Banana, Weapons.Missiles]
+extraLightWeapons = [Weapons.Laser, Weapons.Radiation]
 
-coreHeavyWeapons = [Weapons.Bomber, Weapons.Backshot, Weapons.Reverse, Weapons.Dirt, Weapons.Halo, Weapons.Eraser, Weapons.Mine]
-extraHeavyWeapons = [Weapons.Disruptor, Weapons.Larpa, Weapons.WaterGun]
+coreHeavyWeapons = [Weapons.Bomber, Weapons.Backshot, Weapons.Reverse, Weapons.Dirt, Weapons.Halo, Weapons.Eraser, Weapons.Mine, Weapons.Disruptor]
+extraHeavyWeapons = [Weapons.Larpa, Weapons.WaterGun]
 
 lightWeapons = coreLightWeapons #+extraLightWeapons
 heavyWeapons = coreHeavyWeapons #+extraHeavyWeapons
@@ -67,7 +67,7 @@ names.append("Player 3")
 names.append("Player 4")
 
 colors = []
-colors.append((255,0,0))
-colors.append((0,0,255))
-colors.append((0,255,0))
-colors.append((0,255,255))
+colors.append((255,75,75))
+colors.append((75,75,255))
+colors.append((75,255,75))
+colors.append((75,255,255))

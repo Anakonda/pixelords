@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import colorsys
 import math
 import random
 
@@ -25,6 +24,7 @@ class Ship(Objects.Object):
 		self.isSprite = True
 		self.isShip = True
 		self.floats = True
+		self.colorize = True
 
 		self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
 		self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
@@ -37,15 +37,6 @@ class Ship(Objects.Object):
 		self.shipModel.loadingSpeed = 15*self.shipModel.loadingSpeed+40
 
 		self.sprite(self.shipModel.image)
-
-		for x in range(self.baseImage.get_width()):
-			for y in range(self.baseImage.get_height()):
-				ownhue = colorsys.rgb_to_hls(self.color[0]/255.0, self.color[1]/255.0, self.color[2]/255.0)[0]
-				color = colorsys.rgb_to_hls(self.baseImage.get_at((x,y))[0]/255.0, self.baseImage.get_at((x,y))[1]/255.0, self.baseImage.get_at((x,y))[2]/255.0)
-
-				newcolor = colorsys.hls_to_rgb(ownhue, color[1], color[2])
-
-				self.baseImage.set_at((x,y), (newcolor[0]*255, newcolor[1]*255, newcolor[2]*255, self.baseImage.get_at((x,y))[3]))
 
 	def spawn(self): # Respawn the ship
 		self.randomizeLocation(self.game.map)
