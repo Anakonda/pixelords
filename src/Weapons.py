@@ -312,3 +312,13 @@ class WaterGun(Weapon):
 
 	def fire(self, ship):
 		self.shootObject(ship, Objects.WaterBall, 12, 3)
+
+class GrenadeLauncher(Weapon):
+	def init(self):
+		self.name = "Grenade Launcher"
+		self.loadSpeed = 1.25
+		self.recoil = 1
+		self.sound = 3
+
+	def fire(self, ship):
+		self.shootObject(ship, Objects.Grenade, 15, 6)

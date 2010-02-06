@@ -935,3 +935,18 @@ class WaterBall(Object):
 							self.game.map.waters.append((x,y))
 
 		self.destroy(map)
+
+class Grenade(Object):
+	def init(self):
+		self.size = 4
+		self.explosionSizeFactor = 3
+		self.explosionParticleFactor = 5
+		self.lifetime = 75
+
+	def check(self, map):
+		if self.lifetime == 0:
+			for i in range(0,20):
+				self.game.objects.append(Shard(self.game,self.owner,self.x+random.uniform(-6,6),self.y+random.uniform(-6,6), self.dx+random.uniform(-3,3), self.dy+random.uniform(-3,3)))
+			self.destroy(map)
+		else:
+			self.lifetime -= 1
