@@ -38,7 +38,7 @@ waterSpeed = config.getint("Game rules", "waterSpeed")
 map = config.get("Game rules", "map")
 gfxTheme = config.get("Game rules", "gfxTheme")
 
-coreLightWeapons = [Weapons.Bolts, Weapons.Cannon, Weapons.Shotgun, Weapons.Flamer, Weapons.Laser, Weapons.MachineGun, Weapons.Rifle, Weapons.Banana, Weapons.Missiles]
+coreLightWeapons = [Weapons.Bolts, Weapons.Cannon, Weapons.Shotgun, Weapons.Flamer, Weapons.Laser, Weapons.MachineGun, Weapons.Rifle, Weapons.Banana, Weapons.Missiles, Weapons.GrenadeLauncher]
 extraLightWeapons = [Weapons.Laser, Weapons.Radiation]
 
 coreHeavyWeapons = [Weapons.Bomber, Weapons.Backshot, Weapons.Reverse, Weapons.Dirt, Weapons.Halo, Weapons.Eraser, Weapons.Mine, Weapons.Disruptor]
