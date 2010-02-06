@@ -945,8 +945,10 @@ class Grenade(Object):
 
 	def check(self, map):
 		if self.lifetime == 0:
-			for i in range(0,20):
-				self.game.objects.append(Shard(self.game,self.owner,self.x+random.uniform(-6,6),self.y+random.uniform(-6,6), self.dx+random.uniform(-3,3), self.dy+random.uniform(-3,3)))
-			self.destroy(map)
+			self.explode(map)
 		else:
 			self.lifetime -= 1
+	def explode(self, map):
+		for i in range(0,20):
+			self.game.objects.append(Shard(self.game,self.owner,self.x+random.uniform(-6,6),self.y+random.uniform(-6,6), self.dx+random.uniform(-3,3), self.dy+random.uniform(-3,3)))
+		self.destroy(map)
