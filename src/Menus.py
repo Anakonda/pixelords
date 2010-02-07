@@ -17,10 +17,7 @@ class MainMenu(MenuSystem.Menu):
 		self.addWidget(self.Button((Settings.width/6,4*Settings.height/6),(3*Settings.width/6,Settings.height/12),"Test", self.test))
 
 	def startGame(self,x,y):
-		try:
-			game = Game.Game(self.engine)
-		except Exception as error:
-			raise Exception(error)
+		game = Game.Game(self.engine)
 		pygame.mouse.set_visible(True)
 		self.engine.inGame = False
 
