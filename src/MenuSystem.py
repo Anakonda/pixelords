@@ -116,13 +116,13 @@ class Menu:
 			self.returnValue(self.variable)
 
 	class Slider:
-		def __init__(self, location, size, variable, valueRange, returnValue):
+		def __init__(self, location, size, variable, valueRange, returnValue, additionalVariable):
 			self.x, self.y = location
 			self.sizex, self.sizey = size
 			self.variable = variable
 			self.valueRange = valueRange
 			self.returnValue = returnValue
-
+			self.additionalVariable = additionalVariable
 			self.isDraggable = True
 
 		def draw(self, menu):
@@ -138,4 +138,54 @@ class Menu:
 				self.variable = self.valueRange[1]
 			else:
 				self.variable = (x-self.x)*((self.valueRange[1]-self.valueRange[0])/float(self.sizex))+self.valueRange[0]
-			self.returnValue(int(round(self.variable)))
+			if self.additionalVariable == None:
+				self.returnValue(int(round(self.variable)))
+			else:
+				self.returnValue(int(round(self.variable)), self.additionalVariable)
+				
+	class InputBox:
+		def __init__(self, location, size, question, variable, menu, additionalVariable):
+			self.x,self.y = location
+			self.sizex,self.sizey = size
+			self.question = question
+			self.variable = variable
+			self.current_string = []
+			self.menu = menu
+			self.additionalVariable = additionalVariable
+
+		def draw(self,menu):
+			self.display = self.display_box(menu, self.question + ": " + pygame.string.join(self.current_string,""), self.x,self.y, self.sizex,self.sizey)
+
+		def action(self,x,y):
+			while 1:
+				inkey = self.get_key()
+				if inkey == pygame.K_BACKSPACE:
+					self.current_string = self.current_string[0:-1]
+				elif inkey == pygame.K_RETURN:
+					break
+				elif inkey == pygame.K_MINUS:
+					self.current_string.append("-")
+				elif inkey <= 127:
+					self.current_string.append(chr(inkey))
+				self.display = self.display_box(self.menu, self.question + ": " + pygame.string.join(self.current_string,""), self.x,self.y, self.sizex,self.sizey)
+			if self.additionalVariable == None:
+				self.variable(self.current_string)
+			else:
+				self.variable(self.current_string, self.additionalVariable)
+			
+		def display_box(self,menu, message, x,y, sizex,sizey):
+			font = menu.engine.text
+			self.message = message
+			pygame.draw.rect(menu.engine.screen, (0,0,0),(x,y,sizex,sizey), 1)
+			pygame.draw.rect(menu.engine.screen, (255,255,255),(x,y,sizex,sizey), 1)
+			if len(message) != 0:
+				menu.engine.screen.blit(font.render(self.message, 1, (255,255,255)),((x,y,sizex,sizey)))
+			pygame.display.update()
+
+		def get_key(self):
+			while 1:
+				event = pygame.event.poll()
+				if event.type == pygame.KEYDOWN:
+					return event.key
+				else:
+					pass
