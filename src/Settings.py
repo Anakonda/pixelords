@@ -71,3 +71,9 @@ colors.append((255,75,75))
 colors.append((75,75,255))
 colors.append((75,255,75))
 colors.append((75,255,255))
+
+def save(settings):
+	if settings == "players":
+		config.set("Game rules","playerAmount",playerAmount)
+	with open("config.txt", "wb") as configfile:
+		config.write(configfile)
