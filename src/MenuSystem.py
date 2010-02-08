@@ -18,10 +18,10 @@ class Menu:
 		while self.running:
 			self.event()
 
-			if Settings.showFPS:
-				self.engine.screen.blit(self.engine.text.render(str(int(self.engine.clock.get_fps())), True, (255,0,0)), (Settings.width-40,10))
+			if Settings.settings["Screen"]["showfps"]:
+				self.engine.screen.blit(self.engine.text.render(str(int(self.engine.clock.get_fps())), True, (255,0,0)), (Settings.settings["Screen"]["width"]-40,10))
 
-			if Settings.scale != 1:
+			if Settings.settings["Screen"]["scalefactor"] != 1:
 				self.engine.scale()
 
 			pygame.display.update()
@@ -36,8 +36,8 @@ class Menu:
 				self.quit()
 			elif event.type == pygame.MOUSEBUTTONDOWN:
 				needRedraw = True
-				x = pygame.mouse.get_pos()[0]/Settings.scale
-				y = pygame.mouse.get_pos()[1]/Settings.scale
+				x = pygame.mouse.get_pos()[0]/Settings.settings["Screen"]["scalefactor"]
+				y = pygame.mouse.get_pos()[1]/Settings.settings["Screen"]["scalefactor"]
 				for widget in self.widgets:
 					try:
 						if x > widget.x and x < widget.x+widget.sizex and y > widget.y and y < widget.y+widget.sizey:
@@ -191,6 +191,8 @@ class Menu:
 			pygame.draw.rect(menu.engine.screen, (255,255,255),(x,y,sizex,sizey), 1)
 			if len(message) != 0:
 				menu.engine.screen.blit(font.render(self.message, 1, (255,255,255)),((x,y,sizex,sizey)))
+			pygame.display.update()
+
 
 		def get_key(self):
 			while 1:
@@ -237,4 +239,3 @@ class Menu:
 						self.currentValue = self.values[int(mousey/self.sizey)]
 						self.variable(self.currentValue)
 						self.quit()
-					

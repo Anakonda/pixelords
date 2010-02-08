@@ -1,28 +1,125 @@
-[Screen]
-width: 800
-height: 600
-fullscreen: 0
-hwAcceleration: false
-doubleBuffering: false
-scaleFactor: 1
-scaleType: 0
-showFPS: false
-
-[Sound]
-enabled: true
-music: true
-musicVolume: 0.8
-
-[Game rules]
-playerAmount: 2
-lives: 5
-killLimit: 99
-resetWeaponsOnDeath: true
-insta: false
-bonusDelay: 1200
-loadingSpeed: 100
-shipStrength: 100
-waterSpeed: 0
-
-map: cave
-gfxTheme: default
+{
+    "Players": [
+        {
+            "color": {
+                "blue": 75, 
+                "green": 75, 
+                "red": 255
+            }, 
+            "controls": {
+                "rotate1": 276, 
+                "rotate2": 275, 
+                "shoot1": 305, 
+                "shoot2": 274, 
+                "thrust": 273
+            }, 
+            "name": "Player 1"
+        }, 
+        {
+            "color": {
+                "blue": 255, 
+                "green": 75, 
+                "red": 75
+            }, 
+            "controls": {
+                "rotate1": 97, 
+                "rotate2": 100, 
+                "shoot1": 306, 
+                "shoot2": 115, 
+                "thrust": 119
+            }, 
+            "name": "Player 2"
+        }, 
+        {
+            "color": {
+                "blue": 75, 
+                "green": 255, 
+                "red": 75
+            }, 
+            "controls": {
+                "rotate1": 106, 
+                "rotate2": 108, 
+                "shoot1": 110, 
+                "shoot2": 107, 
+                "thrust": 105
+            }, 
+            "name": "Player 3"
+        }, 
+        {
+            "color": {
+                "blue": 255, 
+                "green": 255, 
+                "red": 75
+            }, 
+            "controls": {
+                "rotate1": 260, 
+                "rotate2": 262, 
+                "shoot1": 269, 
+                "shoot2": 261, 
+                "thrust": 264
+            }, 
+            "name": "Player 4"
+        }
+    ], 
+    "Rules": {
+        "bonusdelay": 1200, 
+        "gfxtheme": "default", 
+        "insta": false, 
+        "killlimit": 99, 
+        "lives": 5, 
+        "loadingspeed": 100, 
+        "map": "cave", 
+        "playeramount": 2, 
+        "resetweaponsondeath": true, 
+        "shipstrength": 100, 
+        "waterspeed": 0
+    }, 
+    "Screen": {
+        "doublebuffering": false, 
+        "fullscreen": 0, 
+        "height": 600, 
+        "hwacceleration": false, 
+        "scalefactor": 1, 
+        "scaletype": 0, 
+        "showfps": false, 
+        "width": 800
+    }, 
+    "Ships": [
+        "Fighter", 
+        "Basher", 
+        "Destroyer", 
+        "MegaGlider", 
+        "Interceptor", 
+        "Penetrator", 
+        "Dragon", 
+        "Incectar"
+    ], 
+    "Sound": {
+        "enabled": true, 
+        "music": true, 
+        "musicvolume": 0.80000000000000004
+    }, 
+    "Weapons": {
+        "heavy": [
+            "Bomber", 
+            "Backshot", 
+            "Reverse", 
+            "Dirt", 
+            "Halo", 
+            "Eraser", 
+            "Mine"
+        ], 
+        "light": [
+            "Bolts", 
+            "Cannon", 
+            "Shotgun", 
+            "Flamer", 
+            "Laser", 
+            "MachineGun", 
+            "Rifle", 
+            "Banana", 
+            "Missiles", 
+            "GrenadeLauncher"
+        ]
+    }
+}

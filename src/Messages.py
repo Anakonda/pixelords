@@ -30,15 +30,15 @@ class InfoOverlay:
 	def draw(self, engine):
 		if self.show:
 			if engine.inGame:
-				engine.screen.fill((64,64,64),((Settings.width-300,20),(275,180)))
+				engine.screen.fill((64,64,64),((Settings.settings["Screen"]["width"]-300,20),(275,180)))
 
-				engine.screen.blit(engine.text.render("F10 - Save map", True, (255,255,255)), (Settings.width-280,160))
-				engine.screen.blit(engine.text.render("F11 - Take a full map screenshot", True, (255,255,255)), (Settings.width-280,180))
+				engine.screen.blit(engine.text.render("F10 - Save map", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,160))
+				engine.screen.blit(engine.text.render("F11 - Take a full map screenshot", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,180))
 			else:
-				engine.screen.fill((64,64,64),((Settings.width-300,20),(275,120)))
+				engine.screen.fill((64,64,64),((Settings.settings["Screen"]["width"]-300,20),(275,120)))
 
-			engine.screen.blit(engine.text3.render("Hotkeys", True, (255,255,255)), (Settings.width-290,20))
-			engine.screen.blit(engine.text.render("ESC - Exit the game", True, (255,255,255)), (Settings.width-280,60))
-			engine.screen.blit(engine.text.render("F1 - Show this help", True, (255,255,255)), (Settings.width-280,80))
-			engine.screen.blit(engine.text.render("F5 - Toggle music", True, (255,255,255)), (Settings.width-280,100))
-			engine.screen.blit(engine.text.render("F12 - Take a screenshot", True, (255,255,255)), (Settings.width-280,120))
+			engine.screen.blit(engine.text3.render("Hotkeys", True, (255,255,255)), (Settings.settings["Screen"]["width"]-290,20))
+			engine.screen.blit(engine.text.render("ESC - Exit the game", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,60))
+			engine.screen.blit(engine.text.render("F1 - Show this help", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,80))
+			engine.screen.blit(engine.text.render("F5 - Toggle music", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,100))
+			engine.screen.blit(engine.text.render("F12 - Take a screenshot", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,120))

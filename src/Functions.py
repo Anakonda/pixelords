@@ -6,8 +6,8 @@ import os
 import Settings
 
 def gfxPath(file): # Get path for GFX
-	if os.path.exists(os.path.join("gfx",Settings.gfxTheme,file)):
-		path = os.path.join("gfx",Settings.gfxTheme,file)
+	if os.path.exists(os.path.join("gfx",Settings.settings["Rules"]["gfxtheme"],file)):
+		path = os.path.join("gfx",Settings.settings["Rules"]["gfxtheme"],file)
 	else:
 		path = os.path.join("gfx","default",file)
 

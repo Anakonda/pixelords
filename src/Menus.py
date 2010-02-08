@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pygame
+import traceback
 
 import Settings
 import Game
@@ -11,18 +12,25 @@ class MainMenu(MenuSystem.Menu):
 		pass
 		
 	def addWidgets(self):
-		self.addWidget(self.Label((Settings.width/6,Settings.height/24),42,"War of Pixelords"))
-		self.addWidget(self.Label((10,Settings.height-20),12,"Version: git-experimental"))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),42,"War of Pixelords"))
+		self.addWidget(self.Label((10,Settings.settings["Screen"]["height"]-20),12,"Version: git-experimental"))
 
-		self.addWidget(self.Button((Settings.width/6,Settings.height/6),(Settings.width/6,Settings.height/6),"Play!", self.startGame))
-		self.addWidget(self.Button((3*Settings.width/6,Settings.height/6),(Settings.width/6,Settings.height/6),"Quit", self.quit))
-		self.addWidget(self.Button((Settings.width/6,2.5*Settings.height/6),(3*Settings.width/6,Settings.height/6),"Options", self.gotoOptions))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),"Play!", self.startGame))
+		self.addWidget(self.Button((3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),"Quit", self.quit))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/6,2.5*Settings.settings["Screen"]["height"]/6),(3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),"Options", self.gotoOptions))
 
 	def startGame(self,x,y):
 		try:
 			game = Game.Game(self.engine)
 		except Exception as error:
-			raise Exception(error)
+			print
+			print "#"*80
+			self.engine.messageBox.addMessage("Error: " + str(error))
+			print "#"*80
+			traceback.print_exc()
+			print "#"*80
+			print
+
 		pygame.mouse.set_visible(True)
 		self.engine.inGame = False
 
@@ -36,12 +44,13 @@ class Options(MenuSystem.Menu):
 		pass
 		
 	def addWidgets(self):
-		self.addWidget(self.Label((Settings.width/6,Settings.height/24),36,"Options"))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),36,"Options"))
 	
-		self.addWidget(self.Button((Settings.width/6,Settings.height/6),(3*Settings.width/6,Settings.height/8),"Players",self.gotoPlayersMenu))
-		self.addWidget(self.Button((Settings.width/6,2.5*Settings.height/6),(3*Settings.width/6,Settings.height/8),"Graphics",self.gotoGraphicsMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),(3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Players",self.gotoPlayersMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/6,2.5*Settings.settings["Screen"]["height"]/6),(3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Graphics",self.gotoGraphicsMenu))
 
-		self.addWidget(self.Button((Settings.width/12,5*Settings.height/6),(Settings.width/6,Settings.height/8),"Back", self.goBack))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Back", self.goBack))
+
 
 	def gotoPlayersMenu(self,x,y):
 		PlayersMenu = Players(self.engine)
@@ -58,35 +67,36 @@ class Options(MenuSystem.Menu):
 
 class Players(MenuSystem.Menu):
 	def init(self):
-		self.playerNames = Settings.names
-		self.playerAmount = Settings.playerAmount
+		self.playerAmount = Settings.settings["Rules"]["playeramount"]
+		self.playerNames = []
 		self.colors = []
-		for i in range(0,4):
-			self.red,self.green,self.blue = Settings.colors[i]
-			self.colors.append(self.red)
-			self.colors.append(self.green)
-			self.colors.append(self.blue)
+		for i in range(0,self.playerAmount):
+			self.playerNames.append(Settings.settings["Players"][i]["name"]) 
+			self.colors.append(Settings.settings["Players"][i]["color"]["red"])
+			self.colors.append(Settings.settings["Players"][i]["color"]["green"])
+			self.colors.append(Settings.settings["Players"][i]["color"]["blue"])
 
+		self.addWidgets()
 		
 	def addWidgets(self):
-		self.addWidget(self.Label((Settings.width/6,Settings.height/24),36,"Player Options"))
-		self.addWidget(self.Label((3*Settings.width/6,Settings.height/6),24,"Player Amount"))
-		self.addWidget(self.Slider((4.5*Settings.width/6,Settings.height/6),(Settings.width/6,Settings.height/24),self.playerAmount,(2,4),self.setPlayerAmount,None))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),36,"Player Options"))
+		self.addWidget(self.Label((3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),24,"Player Amount"))
+		self.addWidget(self.Slider((4.5*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),self.playerAmount,(2,4),self.setPlayerAmount,None))
 		for playerId in range(0,self.playerAmount):
-			self.addWidget(self.InputBox((Settings.width/24,(1.5+playerId)*Settings.height/6),(2*Settings.width/8,Settings.height/24),"Name", self.setPlayerName,self,self.playerNames[playerId],playerId))
-			self.addWidget(self.Label((2*Settings.width/6,(1.5+playerId)*Settings.height/6),24,"player "+str(playerId+1)+" color"))
-			self.addWidget(self.Slider((3.5*Settings.width/6,(1.5+playerId)*Settings.height/6),(2*Settings.width/6,Settings.height/24),self.colors[3*playerId],(0,255),self.setPlayerColor,playerId*3))
-			self.addWidget(self.Slider((3.5*Settings.width/6,(1.5+playerId)*Settings.height/6+Settings.height/22),(2*Settings.width/6,Settings.height/24),self.colors[3*playerId+1],(0,255),self.setPlayerColor,playerId*3+1))
-			self.addWidget(self.Slider((3.5*Settings.width/6,(1.5+playerId)*Settings.height/6+2*Settings.height/22),(2*Settings.width/6,Settings.height/24),self.colors[3*playerId+2],(0,255),self.setPlayerColor,playerId*3+2))
-		self.addWidget(self.Button((Settings.width/12,5*Settings.height/6),(Settings.width/6,Settings.height/8),"Back", self.goBack))
-		self.addWidget(self.Button((9*Settings.width/12,5*Settings.height/6),(Settings.width/6,Settings.height/8),"Save", self.Save))
+			self.addWidget(self.InputBox((Settings.settings["Screen"]["width"]/8,(1.5+playerId)*Settings.settings["Screen"]["height"]/6),(2*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24),"Name", self.setPlayerName,self,playerId))
+			self.addWidget(self.Label((2*Settings.settings["Screen"]["width"]/6,(1.5+playerId)*Settings.settings["Screen"]["height"]/6),24,"player "+str(playerId+1)+" color"))
+			self.addWidget(self.Slider((3.5*Settings.settings["Screen"]["width"]/6,(1.5+playerId)*Settings.settings["Screen"]["height"]/6),(2*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),self.colors[3*playerId],(0,255),self.setPlayerColor,playerId*3))
+			self.addWidget(self.Slider((3.5*Settings.settings["Screen"]["width"]/6,(1.5+playerId)*Settings.settings["Screen"]["height"]/6+Settings.settings["Screen"]["height"]/22),(2*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),self.colors[3*playerId+1],(0,255),self.setPlayerColor,playerId*3+1))
+			self.addWidget(self.Slider((3.5*Settings.settings["Screen"]["width"]/6,(1.5+playerId)*Settings.settings["Screen"]["height"]/6+2*Settings.settings["Screen"]["height"]/22),(2*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),self.colors[3*playerId+2],(0,255),self.setPlayerColor,playerId*3+2))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Back", self.goBack))
+		self.addWidget(self.Button((9*Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Save", self.Save))
 
 	def Save(self,x,y):
-		Settings.playerAmount = self.playerAmount
-		for i in range(0,Settings.playerAmount):
-			Settings.colors[i] = (self.colors[i*3],self.colors[i*3+1],self.colors[i*3+2])
-			Settings.names[i] = self.playerNames[i]
-		Settings.save("players")
+		Settings.settings["Rules"]["playeramount"] = self.playerAmount
+		for i in range(0,Settings.settings["Rules"]["playeramount"]):
+
+			Settings.settings["Players"][i]["color"]["red"],Settings.settings["Players"][i]["color"]["green"],Settings.settings["Players"][i]["color"]["blue"] = self.colors[i*3],self.colors[i*3+1],self.colors[i*3+2]
+			(Settings.settings["Players"][i]["name"]  = self.playerNames[i]
 		self.quit()
 
 	def setPlayerAmount(self,value):
@@ -107,22 +117,22 @@ class Graphics(MenuSystem.Menu):
 	def init(self):
 		self.fullscreen = Settings.fullscreen
 		self.showFPS = Settings.showFPS
-		self.resolution = Settings.width,Settings.height
+		self.resolution = Settings.settings["Screen"]["width"],Settings.settings["Screen"]["height"]
 		
 	def addWidgets(self):
-		self.addWidget(self.Label((Settings.width/6,Settings.height/24),36,"Graphics Options"))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),36,"Graphics Options"))
 		
-		self.addWidget(self.CheckBox((3*Settings.width/6,Settings.height/6),(Settings.width/24,Settings.width/24), self.fullscreen, self.setfullscreen))
-		self.addWidget(self.Label((Settings.width/6,Settings.height/6),24,"Full screen"))
+		self.addWidget(self.CheckBox((3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), self.fullscreen, self.setfullscreen))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),24,"Full screen"))
 	
-		self.addWidget(self.CheckBox((3*Settings.width/6,1.5*Settings.height/6),(Settings.width/24,Settings.width/24), self.fullscreen, self.setFPS))
-		self.addWidget(self.Label((Settings.width/6,1.5*Settings.height/6),24,"Show FPS"))
+		self.addWidget(self.CheckBox((3*Settings.settings["Screen"]["width"]/6,1.5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), self.fullscreen, self.setFPS))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,1.5*Settings.settings["Screen"]["height"]/6),24,"Show FPS"))
 		
-		self.addWidget(self.DropMenu((3*Settings.width/6,2*Settings.height/6),(2*Settings.width/6,Settings.width/18),self.setResolution,pygame.display.list_modes(),self.resolution))
-		self.addWidget(self.Label((Settings.width/6,6*Settings.height/6),24,"Resolution"))
+		self.addWidget(self.DropMenu((3*Settings.settings["Screen"]["width"]/6,2*Settings.settings["Screen"]["height"]/6),(2*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["width"]/18),self.setResolution,pygame.display.list_modes(),self.resolution))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,6*Settings.settings["Screen"]["height"]/6),24,"Resolution"))
 
-		self.addWidget(self.Button((Settings.width/12,5*Settings.height/6),(Settings.width/6,Settings.height/8),"Back", self.goBack))
-		self.addWidget(self.Button((9*Settings.width/12,5*Settings.height/6),(Settings.width/6,Settings.height/8),"Save", self.Save))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Back", self.goBack))
+		self.addWidget(self.Button((9*Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Save", self.Save))
 		
 	def setfullscreen(self, value):
 		self.fullscreen = value
@@ -134,7 +144,7 @@ class Graphics(MenuSystem.Menu):
 		self.resolution = value
 		
 	def Save(self,x,y):
-		Settings.width,Settings.height=self.resolution
+		Settings.settings["Screen"]["width"],Settings.settings["Screen"]["height"]=self.resolution
 		Settings.showFPS = self.showFPS
 		Settings.fullscreen = self.fullscreen
 		self.engine.initScreen()

@@ -22,10 +22,11 @@ class Game:
 		self.objects = []
 		self.players = []
 
-		for i in range(Settings.playerAmount-1,-1,-1):
-			self.players.append(Player.Player(self, Settings.keys[i], Settings.names[i], Settings.colors[i]))
+		for i in range(Settings.settings["Rules"]["playeramount"]-1,-1,-1):
+			self.players.append(Player.Player(self, Settings.settings["Players"][i]["controls"], Settings.settings["Players"][i]["name"],
+				(Settings.settings["Players"][i]["color"]["red"],Settings.settings["Players"][i]["color"]["green"],Settings.settings["Players"][i]["color"]["blue"])))
 
-		self.bonusTimer = Settings.bonusDelay
+		self.bonusTimer = Settings.settings["Rules"]["bonusdelay"]
 
 		self.run()
 
@@ -65,9 +66,9 @@ class Game:
 							player.event(event)
 
 	def checkBonusSpawn(self): # Check spawn timer for repair kits and weapon changers
-		if Settings.bonusDelay > 0:
+		if Settings.settings["Rules"]["bonusdelay"] > 0:
 			if self.bonusTimer <= 0:
-				self.bonusTimer = Settings.bonusDelay
+				self.bonusTimer = Settings.settings["Rules"]["bonusdelay"]
 				if random.randint(0,1):
 					self.objects.append(Objects.RepairKit(self, None, self.engine))
 					self.engine.messageBox.addMessage("Repair kit spawned.")
@@ -83,7 +84,7 @@ class Game:
 
 		while self.running:
 			if self.inMenu:
-				menuPlayers = Settings.playerAmount
+				menuPlayers = Settings.settings["Rules"]["playeramount"]
 				for i,player in enumerate(self.players):
 					if player.menuStage == 0:
 						menuPlayers -= 1
@@ -92,7 +93,7 @@ class Game:
 					player.menuCheck()
 				if menuPlayers <= 0:
 					self.inMenu = False
-					self.engine.screen.fill((0,0,0), ((0,0),(Settings.width,Settings.height)))
+					self.engine.screen.fill((0,0,0), ((0,0),(Settings.settings["Screen"]["width"],Settings.settings["Screen"]["height"])))
 
 					self.engine.messageBox.addMessage("Round started!")
 
@@ -104,32 +105,32 @@ class Game:
 					object.run(self.map)
 
 				if not(self.gameOver):
-					activePlayers = Settings.playerAmount
+					activePlayers = Settings.settings["Rules"]["playeramount"]
 					killLimitReached = False
 
 					for player in self.players:
 						if not(player.active):
 							activePlayers -= 1
-						if player.kills >= Settings.killLimit:
+						if player.kills >= Settings.settings["Rules"]["killlimit"]:
 							killLimitReached = True
 							self.engine.messageBox.addMessage(player.name + " reached the kill limit!")
 
 						player.check(self)
 
-					if not(Settings.insta):
+					if not(Settings.settings["Rules"]["insta"]):
 						self.checkBonusSpawn()
 
 					if activePlayers < 2 or killLimitReached:
 						self.gameOver = True
 						for i,player in enumerate(self.players):
-							if killLimitReached and player.kills < Settings.killLimit:
+							if killLimitReached and player.kills < Settings.settings["Rules"]["killlimit"]:
 								player.ship.explode(self.map)
 							elif player.active:
 								player.winner = True
 								self.engine.messageBox.addMessage(player.name + " is the winner!")
 
 								player.ship.thrust = False
-								player.ship.rotate = 0
+								player.ship.rotation = 0
 
 				for i,player2 in enumerate(self.players): # Draw screens for each player
 					player2.drawHUD(self.map, i)
@@ -139,10 +140,10 @@ class Game:
 
 			self.event()
 
-			if Settings.showFPS:
-				self.engine.screen.blit(self.engine.text.render(str(int(self.engine.clock.get_fps())), True, (255,0,0)), (Settings.width-40,10))
+			if Settings.settings["Screen"]["showfps"]:
+				self.engine.screen.blit(self.engine.text.render(str(int(self.engine.clock.get_fps())), True, (255,0,0)), (Settings.settings["Screen"]["width"]-40,10))
 
-			if Settings.scale != 1:
+			if Settings.settings["Screen"]["scalefactor"] != 1:
 				self.engine.scale()
 
 			# Redraw the screen
@@ -156,10 +157,10 @@ class Game:
 
 class Map:
 	def __init__(self): # Load the map
-		tempvisual = pygame.image.load(os.path.join("maps",Settings.map,"visual.png")).convert_alpha()
-		self.maskimage = pygame.image.load(os.path.join("maps",Settings.map,"mask.png")).convert()
+		tempvisual = pygame.image.load(os.path.join("maps",Settings.settings["Rules"]["map"],"visual.png")).convert_alpha()
+		self.maskimage = pygame.image.load(os.path.join("maps",Settings.settings["Rules"]["map"],"mask.png")).convert()
 		self.mask = pygame.PixelArray(self.maskimage)
-		self.backgroundimage = pygame.image.load(os.path.join("maps",Settings.map,"background.jpg")).convert()
+		self.backgroundimage = pygame.image.load(os.path.join("maps",Settings.settings["Rules"]["map"],"background.jpg")).convert()
 		self.background = pygame.PixelArray(self.backgroundimage)
 
 		self.width = self.maskimage.get_width()
@@ -175,7 +176,7 @@ class Map:
 		self.waterId = 0
 		self.waterRandomizeDelay = 0
 
-		if Settings.waterSpeed > 0:
+		if Settings.settings["Rules"]["waterspeed"] > 0:
 			waterColor = self.maskimage.map_rgb((0,0,255,255))
 			for x in range(0,self.width):
 				for y in range(0,self.height):
@@ -191,17 +192,17 @@ class Map:
 		self.redrawAreas.append((start, end))
 
 	def water(self, engine):
-		if Settings.waterSpeed > 0:
+		if Settings.settings["Rules"]["waterspeed"] > 0:
 			if self.waterRandomizeDelay == 0:
 				self.waterRandomizeDelay = 200
 				random.shuffle(self.waters)
 			else:
 				self.waterRandomizeDelay -= 1
 			emptyColor = self.maskimage.map_rgb((0,0,0,255))
-			if Settings.waterSpeed > len(self.waters):
+			if Settings.settings["Rules"]["waterspeed"] > len(self.waters):
 				rounds = len(self.waters)
 			else:
-				rounds = Settings.waterSpeed
+				rounds = Settings.settings["Rules"]["waterspeed"]
 			for i in range(rounds):
 				self.waterId += 1
 				if self.waterId >= len(self.waters):

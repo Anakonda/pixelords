@@ -19,11 +19,11 @@ class Sound:
 		self.engine = engine
 		pygame.mixer.init(44100, -16, 2, 1024)
 
-		pygame.mixer.music.set_volume(Settings.musicVolume)
+		pygame.mixer.music.set_volume(Settings.settings["Sound"]["musicvolume"])
 		pygame.mixer.music.set_endevent(pygame.constants.USEREVENT)
 		self.musicList = []
 
-		if Settings.music:
+		if Settings.settings["Sound"]["music"]:
 			self.loadMusic()
 
 		self.effects = []
@@ -56,7 +56,7 @@ class Sound:
 			print "Warning: No music available."
 
 def playSound(engine, number, single=False):
-	if Settings.sound and number != None:
+	if Settings.settings["Sound"]["enabled"] and number != None:
 		if single:
 			engine.sound.effects[number].stop()
 		engine.sound.effects[number].play()
