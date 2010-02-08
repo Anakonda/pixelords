@@ -706,6 +706,7 @@ class Bolt(Object):
 		self.explosionSizeFactor = 1.25
 		self.explosionParticleFactor = 0
 		self.onShipDamage = 15
+		self.explosionCollision = False
 
 		self.airResistance = 20
 		self.rotateWithSpeed = True
