@@ -66,7 +66,7 @@ class Weapon:
 
 	def check(self, ship): # Per-frame checks
 		if self.loading and self.loaded < 100:
-			self.loaded += self.loadSpeed*(Settings.loadingSpeed/100.0)*(ship.loadingSpeed/100.0)
+			self.loaded += self.loadSpeed*(Settings.settings["Rules"]["loadingspeed"]/100.0)*(ship.loadingSpeed/100.0)
 
 		if self.shotDelayStatus > 0:
 			self.shotDelayStatus -= 1

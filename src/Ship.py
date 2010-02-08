@@ -4,7 +4,9 @@ import math
 import random
 
 import Settings
+import ShipTypes
 import Objects
+import Weapons
 
 class Ship(Objects.Object):
 	def init(self):
@@ -26,13 +28,12 @@ class Ship(Objects.Object):
 		self.floats = True
 		self.colorize = True
 
-		self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
-		self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
+		self.resetWeapons()
 
 	def setShipType(self, shipType): # Load the specific ship
-		self.shipModel = shipType()
+		self.shipModel = eval("ShipTypes." + shipType)()
 
-		self.shipModel.hp = (13*self.shipModel.strength+60)*(Settings.shipStrength/100.0)
+		self.shipModel.hp = (13*self.shipModel.strength+60)*(Settings.settings["Rules"]["shipstrength"]/100.0)
 		self.shipModel.acceleration = 0.0075*self.shipModel.acceleration+0.040
 		self.shipModel.loadingSpeed = 15*self.shipModel.loadingSpeed+40
 
@@ -55,6 +56,10 @@ class Ship(Objects.Object):
 		self.hp = self.shipModel.hp
 		self.acceleration = self.shipModel.acceleration
 		self.loadingSpeed = self.shipModel.loadingSpeed
+
+	def resetWeapons(self):
+		self.lightWeapon = eval("Weapons." + Settings.settings["Weapons"]["light"][random.randint(0,len(Settings.settings["Weapons"]["light"])-1)])(self.game)
+		self.heavyWeapon = eval("Weapons." + Settings.settings["Weapons"]["heavy"][random.randint(0,len(Settings.settings["Weapons"]["heavy"])-1)])(self.game)
 
 	def draw(self, map): # Drawing
 		if self.thrust:

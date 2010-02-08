@@ -25,7 +25,7 @@ class Engine:
 		self.messageBox = Messages.MessageBox()
 		self.infoOverlay = Messages.InfoOverlay()
 
-		if Settings.sound:
+		if Settings.settings["Sound"]["enabled"]:
 			self.sound = Sound.Sound(self)
 		
 		self.inGame = False
@@ -68,15 +68,15 @@ class Engine:
 	def initScreen(self): # Create the screen
 		screenFlags = []
 
-		if Settings.fullscreen == 1:
+		if Settings.settings["Screen"]["fullscreen"] == 1:
 			screenFlags.append(pygame.FULLSCREEN)
-		elif Settings.fullscreen == 2:
+		elif Settings.settings["Screen"]["fullscreen"] == 2:
 			screenFlags.append(pygame.NOFRAME)
 
-		if Settings.hwAcceleration:
+		if Settings.settings["Screen"]["hwacceleration"]:
 			screenFlags.append(pygame.HWSURFACE)
 
-		if Settings.doubleBuffering:
+		if Settings.settings["Screen"]["doublebuffering"]:
 			screenFlags.append(pygame.DOUBLEBUF)
 
 		screenFlagsCombined = 0
@@ -88,17 +88,17 @@ class Engine:
 		pygame.display.set_caption("War of Pixelords")
 		pygame.display.set_icon(pygame.image.load(os.path.join("gfx","default","ship2.png")))
 
-		if Settings.scale != 1:
+		if Settings.settings["Screen"]["scalefactor"] != 1:
 			if Settings.scaleType == 2:
 				Settings.scale = 2**int(math.log(Settings.scale,2))
-			self.scaled = pygame.display.set_mode((int(Settings.scale*Settings.width), int(Settings.scale*Settings.height)), screenFlagsCombined)
-			self.screen = pygame.transform.scale(self.scaled, (Settings.width, Settings.height))
+			self.scaled = pygame.display.set_mode((int(Settings.scale*Settings.settings["Screen"]["width"]), int(Settings.scale*Settings.settings["Screen"]["height"])), screenFlagsCombined)
+			self.screen = pygame.transform.scale(self.scaled, (Settings.settings["Screen"]["width"], Settings.settings["Screen"]["height"]))
 		else:
-			self.screen = pygame.display.set_mode((Settings.width, Settings.height), screenFlagsCombined)
+			self.screen = pygame.display.set_mode((Settings.settings["Screen"]["width"], Settings.settings["Screen"]["height"]), screenFlagsCombined)
 
 	def scale(self): # Scale the screen
 		if Settings.scaleType == 1:
-			pygame.transform.smoothscale(self.screen, (Settings.scale*Settings.width, Settings.scale*Settings.height), self.scaled)
+			pygame.transform.smoothscale(self.screen, (Settings.scale*Settings.settings["Screen"]["width"], Settings.scale*Settings.settings["Screen"]["height"]), self.scaled)
 		elif Settings.scaleType == 2:
 			tempscaler = []
 			tempscaler.append(self.screen)
@@ -106,4 +106,4 @@ class Engine:
 				tempscaler.append(pygame.transform.scale2x(tempscaler[i-1]))
 			pygame.transform.scale2x(tempscaler.pop(), self.scaled)
 		else:
-			pygame.transform.scale(self.screen, (int(Settings.scale*Settings.width), int(Settings.scale*Settings.height)), self.scaled)
+			pygame.transform.scale(self.screen, (int(Settings.scale*Settings.settings["Screen"]["width"]), int(Settings.scale*Settings.settings["Screen"]["height"])), self.scaled)

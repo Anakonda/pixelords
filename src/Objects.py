@@ -8,6 +8,7 @@ import random
 import Settings
 import Functions
 import Sound
+import Weapons
 
 class Object(pygame.sprite.Sprite):
 	def __init__(self, game, owner, x=0,y=0, dx=0,dy=0, color=(176,176,176,255)):
@@ -336,9 +337,9 @@ class WeaponChanger(Object):
 
 		self.heavy = random.randint(0,1)
 		if self.heavy:
-			self.newWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
+			self.newWeapon = eval("Weapons." + Settings.settings["Weapons"]["heavy"][random.randint(0,len(Settings.settings["Weapons"]["heavy"])-1)])(self.game)
 		else:
-			self.newWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
+			self.newWeapon = eval("Weapons." + Settings.settings["Weapons"]["light"][random.randint(0,len(Settings.settings["Weapons"]["light"])-1)])(self.game)
 
 		self.randomizeLocation(self.game.map)
 
