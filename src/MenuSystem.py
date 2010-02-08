@@ -13,6 +13,7 @@ class Menu:
 
 		self.running = True
 		self.init()
+		self.addWidgets()
 		self.draw()
 		while self.running:
 			self.event()
@@ -56,6 +57,10 @@ class Menu:
 
 		if needRedraw:
 			self.draw()
+			
+			
+	def addWidgets(self):
+		pass
 
 	def addWidget(self, widget):
 		self.widgets.append(widget)
@@ -144,12 +149,14 @@ class Menu:
 				self.returnValue(int(round(self.variable)), self.additionalVariable)
 				
 	class InputBox:
-		def __init__(self, location, size, question, variable, menu, additionalVariable):
+		def __init__(self, location, size, question, variable, menu, defaultValue, additionalVariable):
 			self.x,self.y = location
 			self.sizex,self.sizey = size
 			self.question = question
 			self.variable = variable
 			self.current_string = []
+			for str in defaultValue:
+				self.current_string.append(str)
 			self.menu = menu
 			self.additionalVariable = additionalVariable
 
@@ -159,15 +166,19 @@ class Menu:
 		def action(self,x,y):
 			while 1:
 				inkey = self.get_key()
-				if inkey == pygame.K_BACKSPACE:
+				if inkey == "\b":
 					self.current_string = self.current_string[0:-1]
-				elif inkey == pygame.K_RETURN:
+				elif inkey == "\r":
 					break
-				elif inkey == pygame.K_MINUS:
-					self.current_string.append("-")
-				elif inkey <= 127:
-					self.current_string.append(chr(inkey))
+				elif inkey == "^[":
+					self.current_string = []
+					break
+				else:
+					self.current_string.append(inkey)
+				
 				self.display = self.display_box(self.menu, self.question + ": " + pygame.string.join(self.current_string,""), self.x,self.y, self.sizex,self.sizey)
+				self.menu.draw()
+				pygame.display.update()
 			if self.additionalVariable == None:
 				self.variable(self.current_string)
 			else:
@@ -180,12 +191,50 @@ class Menu:
 			pygame.draw.rect(menu.engine.screen, (255,255,255),(x,y,sizex,sizey), 1)
 			if len(message) != 0:
 				menu.engine.screen.blit(font.render(self.message, 1, (255,255,255)),((x,y,sizex,sizey)))
-			pygame.display.update()
 
 		def get_key(self):
 			while 1:
 				event = pygame.event.poll()
 				if event.type == pygame.KEYDOWN:
-					return event.key
+					return event.unicode
 				else:
 					pass
+
+	class DropMenu:
+		def __init__(self, location, size, variable, values, currentValue):
+			self.x,self.y = location
+			self.sizex,self.sizey=size
+			self.variable=variable
+			self.values = values
+			self.currentValue =currentValue
+			
+		def draw(self,menu):
+			self.menu = menu
+			menu.engine.screen.fill((0,128,0),((self.x,self.y),(self.sizex,self.sizey)))
+
+			text = menu.engine.text2.render(str(self.currentValue), True, (255,255,255))
+			menu.engine.screen.blit(text, (((2*self.x+self.sizex)-text.get_width())/2,((2*self.y+self.sizey)-text.get_height())/2))
+		
+		def action(self,x,y):
+			valueId = 0
+			for value in self.values:
+				valueId += 1
+				starty = (valueId-1)*self.sizey
+				endy = self.sizey*valueId
+				self.menu.engine.screen.fill((0,128,0),((self.x,starty),(self.sizex,self.sizey)))
+
+				text = self.menu.engine.text2.render(str(value), True, (255,255,255))
+				self.menu.engine.screen.blit(text, (((2*self.x+self.sizex)-text.get_width())/2,((starty+endy)-text.get_height())/2))
+			pygame.display.update()
+			while 1:
+				event = pygame.event.poll()
+				if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+					self.quit()
+				elif event.type == pygame.MOUSEBUTTONDOWN:
+					mousex = pygame.mouse.get_pos()[0]/Settings.scale
+					mousey = pygame.mouse.get_pos()[1]/Settings.scale
+					if mousex <=self.sizex+self.x and mousex>=self.x:
+						self.currentValue = self.values[int(mousey/self.sizey)]
+						self.variable(self.currentValue)
+						self.quit()
+					
