@@ -41,6 +41,7 @@ class Object(pygame.sprite.Sprite):
 		self.onShipCollision = True
 		self.onShipDamage = 0
 		self.onShipExplode = True
+		self.bounce = False
 		self.hitsWater = False
 		self.floats = False
 
@@ -111,10 +112,83 @@ class Object(pygame.sprite.Sprite):
 		pass
 
 	def onGroundHit(self,map,x,y): # Triggered on ground hit
-		if self.onGroundExplode:
-			self.x = x
-			self.y = y
+		self.x = x
+		self.y = y
 
+		if self.bounce:
+			size = 10
+
+			xsum = 0
+			ysum = 0
+			points = 0
+
+			if int(self.x+size) > map.width:
+				right = map.width
+			else:
+				right = int(self.x+size)
+
+			if int(self.x-size) < 0:
+				left = 0
+			else:
+				left = int(self.x-size)
+
+			for x in range(left, right):
+				if (x-self.x)/(size+0.01) >= -1:
+					for y in range(int((-math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y), int((math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y)):
+						if y < map.height and y >= 0:
+							maskValue = map.mask[x][y]
+							if maskValue != map.maskimage.map_rgb((0,0,0, 255)):
+								xsum += x
+								ysum += y
+								points += 1
+
+								"""map.visual.set_at((x,y), (255,0,0,255))
+								map.screenImage.set_at((x,y), (255,0,0,255))"""
+
+			if points > 0 and points < 0.95*math.pi*size**2:
+				hitx = float(xsum)/points
+				hity = float(ysum)/points
+
+				if hitx-self.x == 0 and hity-self.y != 0:
+					normalAngle = math.pi/2
+				elif hitx-self.x == 0 and hity-self.y == 0:
+					normalAngle = None
+				else:
+					normalAngle = math.atan((hity-self.y)/(hitx-self.x))
+			else:
+				normalAngle = None
+
+			if normalAngle != None:
+				"""pygame.draw.line(map.screenImage, (255,0,0,255), (self.x-50,-50*math.tan(normalAngle)+self.y), (self.x+50,50*math.tan(normalAngle)+self.y))
+				self.redrawLine(map,self.x,self.y,x,y)"""
+
+				if self.dx == 0:
+					collisionAngle = math.pi/2
+				else:
+					collisionAngle = math.atan(self.dy/self.dx)
+
+				if Functions.returnAngle(normalAngle) < Functions.returnAngle(collisionAngle):
+					if (self.dy > 0 and self.dx > 0) or (self.dy > 0 and self.dx < 0) or (self.dy < 0 and self.dx < 0):
+						resultAngle = 2*normalAngle - collisionAngle
+					else:
+						resultAngle = 2*normalAngle - collisionAngle + math.pi
+				else:
+					if (self.dy < 0 and self.dx < 0) or (self.dy > 0 and self.dx < 0):
+						resultAngle = 2*normalAngle - collisionAngle
+					else:
+						resultAngle = 2*normalAngle - collisionAngle + math.pi
+
+				"""pygame.draw.line(map.screenImage, (255,255,0,255), (self.x-50,-50*math.tan(collisionAngle)+self.y), (self.x+50,50*math.tan(collisionAngle)+self.y))
+				self.redrawLine(map,self.x,self.y,x,y)
+
+				pygame.draw.line(map.screenImage, (0,0,255,255), (self.x-50,-50*math.tan(resultAngle)+self.y), (self.x+50,50*math.tan(resultAngle)+self.y))
+				self.redrawLine(map,self.x,self.y,x,y)"""
+
+				self.dx = math.sqrt(self.dx**2+self.dy**2)*math.cos(resultAngle)
+				self.dy = math.sqrt(self.dx**2+self.dy**2)*math.sin(resultAngle)
+			else:
+				self.explode(map)
+		elif self.onGroundExplode:
 			self.explode(map)
 
 	def onWaterHit(self,map,x,y): # Triggered on water hit
@@ -819,6 +893,7 @@ class Larpa(Object):
 		self.drop = 0
 		self.explosionSizeFactor = 1.5
 		self.explosionParticleFactor = 0
+		self.bounce = True
 
 	def check(self, map):
 		if self.drop == 4:
@@ -828,13 +903,6 @@ class Larpa(Object):
 				self.size -= 0.1
 		else:
 			self.drop += 1
-
-	def onGroundHit(self,map,x,y):
-		if (self.x-self.oldx)**2+(self.y-self.oldy)**2 > 3**2:
-			self.dx = -self.dx
-			self.dy = -self.dy
-		else:
-			self.destroy(map)
 
 class Radiation(Object):
 	def init(self):
@@ -943,14 +1011,11 @@ class Grenade(Object):
 		self.size = 4
 		self.explosionSizeFactor = 3
 		self.explosionParticleFactor = 5
-		self.lifetime = 75
+		self.lifetime = 150
+		self.bounce = True
 
 	def check(self, map):
 		if self.lifetime == 0:
 			self.explode(map)
 		else:
 			self.lifetime -= 1
-	def explode(self, map):
-		for i in range(0,20):
-			self.game.objects.append(Shard(self.game,self.owner,self.x+random.uniform(-6,6),self.y+random.uniform(-6,6), self.dx+random.uniform(-3,3), self.dy+random.uniform(-3,3)))
-		self.destroy(map)
