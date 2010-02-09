@@ -2,6 +2,7 @@
 
 import math
 import os
+import traceback
 
 import Settings
 
@@ -37,3 +38,12 @@ def returnAngle(angle):
 		angle += 2*math.pi
 
 	return angle
+
+def formatException(engine, error):
+	print
+	print "#"*80
+	engine.messageBox.addMessage("Error: " + str(error))
+	print "#"*80
+	traceback.print_exc()
+	print "#"*80
+	print

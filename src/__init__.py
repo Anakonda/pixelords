@@ -49,28 +49,28 @@ class Engine:
 			self.messageBox.showForce = False
 			self.infoOverlay.show = False
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_F5:
-			if Settings.sound:
-				if Settings.music:
-					Settings.music = False
+			if Settings.settings["Sound"]["enabled"]:
+				if Settings.settings["Sound"]["music"]:
+					Settings.settings["Sound"]["music"] = False
 					pygame.mixer.music.stop()
 				else:
-					Settings.music = True
+					Settings.settings["Sound"]["music"] = True
 					self.sound.loadMusic()
 			else:
 				print "Warning: Can't enable music (sounds are not enabled)"
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and pygame.key.get_mods() & pygame.KMOD_ALT:
-			if Settings.fullscreen == 1 or Settings.fullscreen == 2:
-				Settings.fullscreen = 0
-			elif Settings.fullscreen == 0:
-				Settings.fullscreen = 1
+			if Settings.settings["Screen"]["fullscreen"]:
+				Settings.settings["Screen"]["fullscreen"] = False
+			elif not(Settings.settings["Screen"]["fullscreen"]):
+				Settings.settings["Screen"]["fullscreen"] = True
 			self.initScreen()
 
 	def initScreen(self): # Create the screen
 		screenFlags = []
 
-		if Settings.settings["Screen"]["fullscreen"] == 1:
+		if Settings.settings["Screen"]["fullscreen"] and Settings.settings["Screen"]["fullscreenconstrain"]:
 			screenFlags.append(pygame.FULLSCREEN)
-		elif Settings.settings["Screen"]["fullscreen"] == 2:
+		elif Settings.settings["Screen"]["fullscreen"]:
 			screenFlags.append(pygame.NOFRAME)
 
 		if Settings.settings["Screen"]["hwacceleration"]:
