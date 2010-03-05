@@ -58,8 +58,12 @@ class Ship(Objects.Object):
 		self.loadingSpeed = self.shipModel.loadingSpeed
 
 	def resetWeapons(self):
-		self.lightWeapon = eval("Weapons." + Settings.settings["Weapons"]["light"][random.randint(0,len(Settings.settings["Weapons"]["light"])-1)])(self.game)
-		self.heavyWeapon = eval("Weapons." + Settings.settings["Weapons"]["heavy"][random.randint(0,len(Settings.settings["Weapons"]["heavy"])-1)])(self.game)
+		if Settings.settings["Rules"]["insta"]:
+			self.lightWeapon = Weapons.InstaGun(self.game)
+			self.heavyWeapon = Weapons.Reverse(self.game)
+		else:
+			self.lightWeapon = eval("Weapons." + Settings.settings["Weapons"]["light"][random.randint(0,len(Settings.settings["Weapons"]["light"])-1)])(self.game)
+			self.heavyWeapon = eval("Weapons." + Settings.settings["Weapons"]["heavy"][random.randint(0,len(Settings.settings["Weapons"]["heavy"])-1)])(self.game)
 
 	def draw(self, map): # Drawing
 		if self.thrust:
