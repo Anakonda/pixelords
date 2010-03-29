@@ -129,9 +129,12 @@ class Graphics(MenuSystem.Menu):
 	def setFPS(self, value):
 		Settings.settings["Screen"]["showfps"] = value
 		
-	def setResolution(self, value):
+	def setResolution(self, value, parameters):
 		Settings.settings["Screen"]["width"] = value[0]
 		Settings.settings["Screen"]["height"] = value[1]
+		self.widgets = []
+		self.addWidgets()
+		self.engine.initScreen()
 		
 	def goBack(self, menu, x,y):
 		self.quit()

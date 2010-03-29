@@ -189,13 +189,14 @@ class Menu:
 				self.returnFunction(self.variable, self.parameters)
 
 	class DropMenu:
-		def __init__(self, location, size, variable, values, returnFunction):
+		def __init__(self, location, size, variable, values, returnFunction, parameters=None):
 			self.x,self.y = location
 			self.sizex,self.sizey = size
 			self.variable = variable
 			self.values = values
 			self.returnFunction = returnFunction
 			self.opened = False
+			self.parameters = parameters
 
 		def redraw(self, menu):
 			menu.engine.screen.fill((0,0,0), ((self.x,self.y),(self.sizex,self.sizey)))
@@ -211,31 +212,28 @@ class Menu:
 				menu.engine.screen.blit(text, (((2*self.x+self.sizex)-text.get_width())/2,((2*self.y+self.sizey)-text.get_height())/2))
 			else:
 				for i,value in enumerate([self.variable] + self.values):
-					if i < 10:
-						starty = self.y + self.sizey*i
-						endy = self.y + self.sizey*(i+1)
-						self.menu.engine.screen.fill((0,128,0),((self.x,starty),(self.sizex,self.sizey)))
+					starty = self.y + self.sizey*i
+					endy = self.y + self.sizey*(i+1)
+					self.menu.engine.screen.fill((0,128,0),((self.x,starty),(self.sizex,self.sizey)))
 
-						text = self.menu.engine.text.render(str(value), True, (255,255,255))
-						self.menu.engine.screen.blit(text, (((2*self.x+self.sizex)-text.get_width())/2,((starty+endy)-text.get_height())/2))
-		
+					text = self.menu.engine.text.render(str(value), True, (255,255,255))
+					self.menu.engine.screen.blit(text, (((2*self.x+self.sizex)-text.get_width())/2,((starty+endy)-text.get_height())/2))
+
 		def action(self, menu, x,y):
-			if self.opened:
-				self.opened = False
-			else:
+			if not(self.opened):
 				self.opened = True
-
+				self.redraw(menu)
+				while True:
+					event = pygame.event.poll()
+					if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+						break
+					elif event.type == pygame.MOUSEBUTTONDOWN:
+						mousex = pygame.mouse.get_pos()[0]/Settings.settings["Screen"]["scalefactor"]
+						mousey = pygame.mouse.get_pos()[1]/Settings.settings["Screen"]["scalefactor"]
+						if mousex <= self.sizex+self.x and mousex >= self.x:
+							if mousey >= self.y and mousey <= self.y + len(self.values)*self.sizey:
+								self.variable = self.values[int((mousey-self.y)/self.sizey-1)]
+								self.returnFunction(self.variable, self.parameters)
+						break
+				self.opened=False
 			self.redraw(menu)
-
-			#TODO:
-			"""while True:
-				event = pygame.event.poll()
-				if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-					self.quit()
-				elif event.type == pygame.MOUSEBUTTONDOWN:
-					mousex = pygame.mouse.get_pos()[0]/Settings.scale
-					mousey = pygame.mouse.get_pos()[1]/Settings.scale
-					if mousex <=self.sizex+self.x and mousex>=self.x:
-						self.currentValue = self.values[int(mousey/self.sizey)]
-						self.variable(self.currentValue)
-						self.quit()"""
