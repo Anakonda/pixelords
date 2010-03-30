@@ -38,10 +38,11 @@ class Options(MenuSystem.Menu):
 		pass
 		
 	def addWidgets(self):
-		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24),36,"Options"))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/5,Settings.settings["Screen"]["height"]/24),36,"Options"))
 	
-		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),(3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Players",self.gotoPlayersMenu))
-		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/6,2.5*Settings.settings["Screen"]["height"]/6),(3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Graphics",self.gotoGraphicsMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/5,Settings.settings["Screen"]["height"]/8),(3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/10),"Players",self.gotoPlayersMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/5,2.5*Settings.settings["Screen"]["height"]/8),(3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/10),"Graphics",self.gotoGraphicsMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/5,4*Settings.settings["Screen"]["height"]/8),(3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/10),"Game rules",self.gotoRulesMenu))
 
 		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Back", self.goBack))
 		self.addWidget(self.Button((9*Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6), (Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Save", self.Save))
@@ -64,6 +65,15 @@ class Options(MenuSystem.Menu):
 		self.widgets = []
 		self.addWidgets()
 
+	def gotoRulesMenu(self, menu, x,y):
+		try:
+			RulesMenu = Rules(self.engine)
+		except Exception as error:
+			Functions.formatException(self.engine, error)
+
+		self.widgets = []
+		self.addWidgets()
+		
 	def Save(self, menu, x,y):
 		Settings.config.save(Settings.settings)
 		self.engine.messageBox.addMessage("Settings saved to file.")
@@ -107,20 +117,26 @@ class Players(MenuSystem.Menu):
 		
 class Graphics(MenuSystem.Menu):
 	def init(self):
-		pass
+		self.gfxlist = Functions.getFolders("gfx")
 		
 	def addWidgets(self):
-		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/24), 36,"Graphics Options"))
-		self.addWidget(self.CheckBox((3*Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24), 36,"Graphics Options"))
+		self.addWidget(self.CheckBox((3*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/6),
 			(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), Settings.settings["Screen"]["fullscreen"], self.setFullscreen))
-		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/6),24,"Fullscreen"))
-		self.addWidget(self.CheckBox((3*Settings.settings["Screen"]["width"]/6,1.5*Settings.settings["Screen"]["height"]/6),
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/6),24,"Fullscreen"))
+		self.addWidget(self.CheckBox((3*Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/6),
 			(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), Settings.settings["Screen"]["showfps"], self.setFPS))
-		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,1.5*Settings.settings["Screen"]["height"]/6), 24,"Show FPS"))
-		self.addWidget(self.DropMenu((3*Settings.settings["Screen"]["width"]/6,2*Settings.settings["Screen"]["height"]/6),
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/6), 24,"Show FPS"))
+		self.addWidget(self.DropMenu((3*Settings.settings["Screen"]["width"]/8,2*Settings.settings["Screen"]["height"]/6),
 			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), (Settings.settings["Screen"]["width"],Settings.settings["Screen"]["height"]), pygame.display.list_modes(), self.setResolution))
-		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/6,2*Settings.settings["Screen"]["height"]/6), 24,"Resolution"))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,2*Settings.settings["Screen"]["height"]/6), 24,"Resolution"))
 		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"OK", self.goBack))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,2.5*Settings.settings["Screen"]["height"]/6), 24,"Graphics theme"))
+		self.addWidget(self.DropMenu((3*Settings.settings["Screen"]["width"]/8,2.5*Settings.settings["Screen"]["height"]/6),
+			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), Settings.settings["Rules"]["gfxtheme"], self.gfxlist, self.setGfxTheme))
+		
+	def setGfxTheme(self, value, parameters):
+		Settings.settings["Rules"]["gfxtheme"] = value
 		
 	def setFullscreen(self, value):
 		Settings.settings["Screen"]["fullscreen"] = value
@@ -138,3 +154,24 @@ class Graphics(MenuSystem.Menu):
 		
 	def goBack(self, menu, x,y):
 		self.quit()
+
+class Rules(MenuSystem.Menu):
+	def init(self):
+		self.maplist = Functions.getFolders("maps")
+
+
+	def addWidgets(self):
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/5,Settings.settings["Screen"]["height"]/24), 36,"Game rules"))
+
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/6), 24,"Map"))
+		self.addWidget(self.DropMenu((3*Settings.settings["Screen"]["width"]/10,Settings.settings["Screen"]["height"]/6),
+			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), Settings.settings["Rules"]["map"], self.maplist, self.setMap))
+			
+	
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"OK", self.goBack))
+
+	def goBack(self, menu, x,y):
+		self.quit()
+	
+	def setMap(self, value, parameters):
+		Settings.settings["Rules"]["map"] = value

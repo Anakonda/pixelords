@@ -47,3 +47,10 @@ def formatException(engine, error):
 	traceback.print_exc()
 	print "#"*80
 	print
+
+def getFolders(path):
+	folderlist = []
+	for file in os.listdir(path):
+		if os.path.isdir(path + "/" + file):
+			folderlist.append(file)
+	return folderlist
