@@ -123,7 +123,9 @@ class Menu:
 	class Slider:
 		def __init__(self, location, size, variable, valueRange, returnFunction, parameters=None):
 			self.x, self.y = location
+			self.x=float(self.x)
 			self.sizex, self.sizey = size
+			self.sizex=float(self.sizex)
 			self.variable = variable
 			self.valueRange = valueRange
 			self.returnFunction = returnFunction
@@ -147,11 +149,12 @@ class Menu:
 			self.returnFunction(int(round(self.variable)), self.parameters)
 				
 	class InputBox:
-		def __init__(self, location, size, variable, returnFunction, parameters=None):
+		def __init__(self, location, size, variable, returnFunction, parameters=None, maxlength=0):
 			self.x,self.y = location
 			self.sizex,self.sizey = size
 			self.variable = variable
 			self.returnFunction = returnFunction
+			self.maxlength = maxlength
 			self.parameters = parameters
 			self.cursor = ""
 
@@ -162,31 +165,30 @@ class Menu:
 			pygame.display.update()
 
 		def draw(self, menu):
-			pygame.draw.rect(menu.engine.screen, (0,0,0),(self.x,self.y, self.sizex,self.sizey), 1)
 			pygame.draw.rect(menu.engine.screen, (255,255,255),(self.x,self.y, self.sizex,self.sizey), 1)
-			menu.engine.screen.blit(menu.engine.text.render(self.variable + self.cursor, 1, (255,255,255)),((self.x+10,self.y+2,self.sizex,self.sizey)))
+			menu.engine.screen.blit(menu.engine.text.render(self.variable + self.cursor, 1, (255,255,255)),((self.x+5,self.y+2,self.sizex,self.sizey)))
+
 
 		def action(self, menu, x,y):
-			self.redraw(menu)
 			running = True
 			while True:
-				event = pygame.event.poll()
-				if event.type == pygame.KEYDOWN:
-					inkey = event.unicode
+				self.redraw(menu)
+				while True:
+					event = pygame.event.poll()
+					if event.type == pygame.KEYDOWN:
+						inkey = event.unicode
+						break
+
+				if inkey == "\b": # Backspace
+					self.variable = self.variable[0:-1]
+				elif inkey == "\r" or inkey == "\x1B": # Return or escape
+					self.cursor = ""
+					self.returnFunction(self.variable, self.parameters)
 					break
-
-			if inkey == "\b": # Backspace
-				self.variable = self.variable[0:-1]
-			elif inkey == "\r" or inkey == "\x1B": # Return or escape
-				running = False
-			else:
-				self.variable += inkey
-
-			if running:
-				self.action(menu, x,y)
-			else:
-				self.cursor = ""
-				self.returnFunction(self.variable, self.parameters)
+				else:
+					if self.maxlength !=0 and not(len(self.variable) == self.maxlength):
+						self.variable = self.variable[(self.maxlength-len(self.variable)-1):len(self.variable)]
+					self.variable += inkey
 
 	class DropMenu:
 		def __init__(self, location, size, variable, values, returnFunction, parameters=None):
@@ -237,3 +239,38 @@ class Menu:
 						break
 				self.opened=False
 			self.redraw(menu)
+
+	class OneKey:
+		def __init__(self, location, size, variable, returnFunction, parameters=None):
+			self.x,self.y = location
+			self.sizex,self.sizey = size
+			self.variable = variable
+			self.returnFunction = returnFunction
+			self.parameters = parameters
+			self.active = False
+
+
+		def redraw(self, menu):
+			menu.engine.screen.fill((0,0,0), ((self.x,self.y),(self.sizex,self.sizey)))
+			self.draw(menu)
+			pygame.display.update()
+
+		def draw(self, menu):
+			if self.active:
+				pygame.draw.rect(menu.engine.screen, (255,0,0),(self.x,self.y, self.sizex,self.sizey), 1)
+			else:
+				pygame.draw.rect(menu.engine.screen, (255,255,255),(self.x,self.y, self.sizex,self.sizey), 1)
+			text = menu.engine.text.render(pygame.key.name(self.variable), True, (255,255,255))
+			menu.engine.screen.blit(text, (self.x+self.sizex/2-text.get_width()/2,self.y+2+self.sizey/2-text.get_height()/2))
+
+		def action(self, menu, x,y):
+			self.active = True
+			self.redraw(menu)
+			while True:
+				event = pygame.event.poll()
+				if event.type == pygame.KEYDOWN:
+					self.variable = event.key
+					self.returnFunction(self.variable, self.parameters)
+					self.active = False
+					self.redraw(menu)
+					break
