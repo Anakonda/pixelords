@@ -40,10 +40,10 @@ class Options(MenuSystem.Menu):
 	def addWidgets(self):
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/4,Settings.settings["Screen"]["height"]/24),36,"Options"))
 	
-		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,2*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Players",self.gotoPlayersMenu))
-		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,4*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Graphics",self.gotoGraphicsMenu))
-		self.addWidget(self.Button((4.5*Settings.settings["Screen"]["width"]/8,2*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Game rules",self.gotoRulesMenu))
-		self.addWidget(self.Button((4.5*Settings.settings["Screen"]["width"]/8,4*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Controls",self.gotoControlsMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Players",self.gotoPlayersMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,3*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Graphics",self.gotoGraphicsMenu))
+		self.addWidget(self.Button((4.5*Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Game rules",self.gotoRulesMenu))
+		self.addWidget(self.Button((4.5*Settings.settings["Screen"]["width"]/8,3*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Controls",self.gotoControlsMenu))
 
 		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Back", self.goBack))
 		self.addWidget(self.Button((9*Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6), (Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Save", self.Save))
@@ -169,30 +169,52 @@ class Rules(MenuSystem.Menu):
 	def init(self):
 		self.maplist = Functions.getFolders("maps")
 
-
 	def addWidgets(self):
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/5,Settings.settings["Screen"]["height"]/24), 36,"Game rules"))
 
-		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/10,Settings.settings["Screen"]["height"]/6), 24,"Map"))
-		self.addWidget(self.DropMenu((3.5*Settings.settings["Screen"]["width"]/10,Settings.settings["Screen"]["height"]/6),
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,Settings.settings["Screen"]["height"]/6), 24,"Map"))
+		self.addWidget(self.DropMenu((3.6*Settings.settings["Screen"]["width"]/9,Settings.settings["Screen"]["height"]/6),
 			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), Settings.settings["Rules"]["map"], self.maplist, self.setMap))
-		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/10,1.5*Settings.settings["Screen"]["height"]/6), 24,"Loading speed"))		
-		self.addWidget(self.Slider((3.5*Settings.settings["Screen"]["width"]/10,1.5*Settings.settings["Screen"]["height"]/6),
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,1.5*Settings.settings["Screen"]["height"]/6), 24,"Loading speed"))		
+		self.addWidget(self.Slider((3.6*Settings.settings["Screen"]["width"]/9,1.5*Settings.settings["Screen"]["height"]/6),
 			(2*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24),Settings.settings["Rules"]["loadingspeed"],(0,1000),self.setLoadingSpeed))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,2*Settings.settings["Screen"]["height"]/6), 24,"Reset wapons on death"))
+		self.addWidget(self.CheckBox((3.6*Settings.settings["Screen"]["width"]/9,2*Settings.settings["Screen"]["height"]/6),
+			(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), Settings.settings["Rules"]["resetweaponsondeath"], self.setResetWeaponsOnDeath))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,2.5*Settings.settings["Screen"]["height"]/6), 24,"Insta mode"))
+		self.addWidget(self.CheckBox((3.6*Settings.settings["Screen"]["width"]/9,2.5*Settings.settings["Screen"]["height"]/6),
+			(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), Settings.settings["Rules"]["insta"], self.setInsta))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,3*Settings.settings["Screen"]["height"]/6), 24,"Ship strength"))
+		self.addWidget(self.Slider((3.6*Settings.settings["Screen"]["width"]/9,3*Settings.settings["Screen"]["height"]/6),
+			(2*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24),Settings.settings["Rules"]["shipstrength"],(1,1000),self.setShipStrength))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,3.5*Settings.settings["Screen"]["height"]/6), 24,"Lives"))		
+		self.addWidget(self.Slider((3.6*Settings.settings["Screen"]["width"]/9,3.5*Settings.settings["Screen"]["height"]/6),
+			(2*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24),Settings.settings["Rules"]["lives"],(1,50),self.setLives))
 
-		
-	
 		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"OK", self.goBack))
 
 	def goBack(self, menu, x,y):
 		self.quit()
-		
+
+	def setResetWeaponsOnDeath(self, value):
+		Settings.settings["Rules"]["resetweaponsondeath"] = value
+
+	def setShipStrength(self, value, parameters):
+		Settings.settings["Rules"]["shipstrength"] = value
+
 	def setLoadingSpeed(self, value, parameters):
 		Settings.settings["Rules"]["loadingspeed"] = value
-	
+
+	def setLives(self, value, parameters):
+		Settings.settings["Rules"]["lives"] = value
+
+	def setInsta(self, value):
+		Settings.settings["Rules"]["insta"] = value
+
 	def setMap(self, value, parameters):
 		Settings.settings["Rules"]["map"] = value
-		
+		engine.getMapSettings()
+
 class Controls(MenuSystem.Menu):
 	def init(self):
 		pass		
@@ -204,8 +226,8 @@ class Controls(MenuSystem.Menu):
 		self.addWidget(self.Label((4*Settings.settings["Screen"]["width"]/7-10,Settings.settings["Screen"]["height"]/4), 20,"Shoot 1st"))
 		self.addWidget(self.Label((5*Settings.settings["Screen"]["width"]/7-10,Settings.settings["Screen"]["height"]/4), 20,"Shoot 2nd"))
 		self.addWidget(self.Label((6*Settings.settings["Screen"]["width"]/7-5,Settings.settings["Screen"]["height"]/4), 20,"Trusters"))
-		for playerId in range(0,4):
-			self.addWidget(self.Label((Settings.settings["Screen"]["width"]/16,(playerId+2.5)*Settings.settings["Screen"]["height"]/8), 24,"Player " + str(playerId + 1)))
+		for playerId in range(0,Settings.settings["Rules"]["playeramount"]):
+			self.addWidget(self.Label((Settings.settings["Screen"]["width"]/16,(playerId+2.5)*Settings.settings["Screen"]["height"]/8), 24,Settings.settings["Players"][playerId]["name"]))
 			self.addWidget(self.OneKey((2*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
 				(2*Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["height"]/24), Settings.settings["Players"][playerId]["controls"]["rotate1"], self.setPlayerKeys, (playerId,"rotate1")))
 			self.addWidget(self.OneKey((3*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
@@ -217,12 +239,10 @@ class Controls(MenuSystem.Menu):
 			self.addWidget(self.OneKey((6*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
 				(2*Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["height"]/24), Settings.settings["Players"][playerId]["controls"]["thrust"], self.setPlayerKeys, (playerId,"thrust")))
 
-
 		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"OK", self.goBack))
 
 	def goBack(self, menu, x,y):
 		self.quit()
-		
 		
 	def setPlayerKeys(self, value, (playerId,Key)):
 		Settings.settings["Players"][playerId]["controls"][Key] = value

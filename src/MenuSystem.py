@@ -157,6 +157,7 @@ class Menu:
 			self.maxlength = maxlength
 			self.parameters = parameters
 			self.cursor = ""
+			self.running = False
 
 		def redraw(self, menu):
 			menu.engine.screen.fill((0,0,0), ((self.x,self.y),(self.sizex,self.sizey)))
@@ -165,12 +166,14 @@ class Menu:
 			pygame.display.update()
 
 		def draw(self, menu):
-			pygame.draw.rect(menu.engine.screen, (255,255,255),(self.x,self.y, self.sizex,self.sizey), 1)
+			if self.running:
+				pygame.draw.rect(menu.engine.screen, (255,0,0),(self.x,self.y, self.sizex,self.sizey), 1)
+			else:
+				pygame.draw.rect(menu.engine.screen, (255,255,255),(self.x,self.y, self.sizex,self.sizey), 1)
 			menu.engine.screen.blit(menu.engine.text.render(self.variable + self.cursor, 1, (255,255,255)),((self.x+5,self.y+2,self.sizex,self.sizey)))
 
-
 		def action(self, menu, x,y):
-			running = True
+			self.running = True
 			while True:
 				self.redraw(menu)
 				while True:
@@ -184,6 +187,7 @@ class Menu:
 				elif inkey == "\r" or inkey == "\x1B": # Return or escape
 					self.cursor = ""
 					self.returnFunction(self.variable, self.parameters)
+					self.running = False
 					break
 				else:
 					if self.maxlength !=0 and not(len(self.variable) == self.maxlength):
@@ -233,7 +237,7 @@ class Menu:
 						mousex = pygame.mouse.get_pos()[0]/Settings.settings["Screen"]["scalefactor"]
 						mousey = pygame.mouse.get_pos()[1]/Settings.settings["Screen"]["scalefactor"]
 						if mousex <= self.sizex+self.x and mousex >= self.x:
-							if mousey >= self.y and mousey <= self.y + len(self.values)*self.sizey:
+							if mousey >= self.y and mousey <= self.y + (len(self.values)+1)*self.sizey:
 								self.variable = self.values[int((mousey-self.y)/self.sizey-1)]
 								self.returnFunction(self.variable, self.parameters)
 						break
@@ -248,7 +252,6 @@ class Menu:
 			self.returnFunction = returnFunction
 			self.parameters = parameters
 			self.active = False
-
 
 		def redraw(self, menu):
 			menu.engine.screen.fill((0,0,0), ((self.x,self.y),(self.sizex,self.sizey)))

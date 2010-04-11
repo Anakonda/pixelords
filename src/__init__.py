@@ -29,6 +29,8 @@ class Engine:
 			self.sound = Sound.Sound(self)
 		
 		self.inGame = False
+		
+		self.mapSettings = Settings.getMapSettings()		
 
 		self.mainMenu = Menus.MainMenu(self)
 

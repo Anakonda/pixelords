@@ -192,7 +192,7 @@ class Map:
 		self.redrawAreas.append((start, end))
 
 	def water(self, engine):
-		if Settings.settings["Rules"]["waterspeed"] > 0:
+		if engine.mapSettings["waterspeed"] > 0:
 			if self.waterRandomizeDelay == 0:
 				self.waterRandomizeDelay = 200
 				random.shuffle(self.waters)
@@ -202,50 +202,48 @@ class Map:
 			if Settings.settings["Rules"]["waterspeed"] > len(self.waters):
 				rounds = len(self.waters)
 			else:
-				rounds = Settings.settings["Rules"]["waterspeed"]
+				rounds = engine.mapSettings["waterspeed"]
 			for i in range(rounds):
 				self.waterId += 1
 				if self.waterId >= len(self.waters):
 					self.waterId = 0
 				water = self.waters[self.waterId]
 				ox,oy = water
-				if ox != None:
-					x,y = (ox,oy)
+				x,y = (ox,oy)
+				try:
+					for repeat in range(2):
+						if x < 0 or y < 0:
+							raise IndexError
+						mask2l = self.mask[x-1][y]
+						mask2r = self.mask[x+1][y]
+						mask2d = self.mask[x][y+1]
 
-					try:
-						for repeat in range(2):
-							if x < 0 or y < 0:
-								raise IndexError
-							mask2l = self.mask[x-1][y]
-							mask2r = self.mask[x+1][y]
-							mask2d = self.mask[x][y+1]
-
-							if mask2d == emptyColor:
-								y += 1
-							elif mask2d != emptyColor and mask2l == emptyColor and mask2r == emptyColor:
-								if random.randint(0,1):
-									x -= 1
-								else:
-									x += 1
-							elif mask2l == emptyColor and mask2r != emptyColor:
+						if mask2d == emptyColor:
+							y += 1
+						elif mask2d != emptyColor and mask2l == emptyColor and mask2r == emptyColor:
+							if random.randint(0,1):
 								x -= 1
-							elif mask2l != emptyColor and mask2r == emptyColor:
+							else:
 								x += 1
+						elif mask2l == emptyColor and mask2r != emptyColor:
+							x -= 1
+						elif mask2l != emptyColor and mask2r == emptyColor:
+							x += 1
 
-					except IndexError:
-						self.waters[self.waterId] = (None,None)
+				except IndexError:
+					self.waters.pop(self.waterId)
+					backgroundColor = self.background[ox][oy]
+					self.mask[ox][oy] = (0,0,0)
+					self.visual.set_at((ox,oy),backgroundColor)
+					self.screenImage.set_at((ox,oy), backgroundColor)
+				else:
+					if x != ox or y != oy:
+						visualColor = self.visual.get_at((ox,oy))
 						backgroundColor = self.background[ox][oy]
 						self.mask[ox][oy] = (0,0,0)
+						self.mask[x][y] = (0,0,255)
 						self.visual.set_at((ox,oy),backgroundColor)
+						self.visual.set_at((x,y),visualColor)
 						self.screenImage.set_at((ox,oy), backgroundColor)
-					else:
-						if x != ox or y != oy:
-							visualColor = self.visual.get_at((ox,oy))
-							backgroundColor = self.background[ox][oy]
-							self.mask[ox][oy] = (0,0,0)
-							self.mask[x][y] = (0,0,255)
-							self.visual.set_at((ox,oy),backgroundColor)
-							self.visual.set_at((x,y),visualColor)
-							self.screenImage.set_at((ox,oy), backgroundColor)
-							self.screenImage.set_at((x,y), visualColor)
-							self.waters[self.waterId] = (x,y)
+						self.screenImage.set_at((x,y), visualColor)
+						self.waters[self.waterId] = (x,y)

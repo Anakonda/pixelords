@@ -3,8 +3,8 @@
 import json
 
 class Config():
-	def load(self):
-		configFile = open('config.txt', 'r')
+	def load(self, file):
+		configFile = open(file, 'r')
 		settings = json.loads(configFile.read())
 		configFile.close()
 
@@ -16,4 +16,6 @@ class Config():
 		configFile.close()
 
 config = Config()
-settings = config.load()
+settings = config.load("config.txt")
+def getMapSettings():
+	return config.load("maps/" + str(settings["Rules"]["map"]) + "/config.txt")
