@@ -15,7 +15,8 @@ class Config():
 		configFile.write(json.dumps(settings, sort_keys=True, indent=4))
 		configFile.close()
 
+def getMapMetadata():
+	return config.load("maps/" + str(settings["Rules"]["map"]) + "/metadata.txt")
+
 config = Config()
 settings = config.load("config.txt")
-def getMapSettings():
-	return config.load("maps/" + str(settings["Rules"]["map"]) + "/config.txt")

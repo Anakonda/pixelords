@@ -213,7 +213,7 @@ class Rules(MenuSystem.Menu):
 
 	def setMap(self, value, parameters):
 		Settings.settings["Rules"]["map"] = value
-		engine.getMapSettings()
+		self.mapSettings = Settings.getMapMetadata()
 
 class Controls(MenuSystem.Menu):
 	def init(self):
