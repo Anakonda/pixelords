@@ -213,11 +213,12 @@ class Rules(MenuSystem.Menu):
 
 	def setMap(self, value, parameters):
 		Settings.settings["Rules"]["map"] = value
-		engine.getMapSettings()
+		self.engine.getMapSettings()
+
 
 class Controls(MenuSystem.Menu):
 	def init(self):
-		pass		
+		pass
 		
 	def addWidgets(self):
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/5,Settings.settings["Screen"]["height"]/24), 36,"Controls"))

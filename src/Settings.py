@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import Functions
 
 class Config():
 	def load(self, file):
@@ -18,4 +19,7 @@ class Config():
 config = Config()
 settings = config.load("config.txt")
 def getMapSettings():
-	return config.load("maps/" + str(settings["Rules"]["map"]) + "/config.txt")
+	try:
+		return config.load("maps/" + str(settings["Rules"]["map"]) + "/config.txt")
+	except Exception as error:
+		Functions.formatException(self.engine, error)

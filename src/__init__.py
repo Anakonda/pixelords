@@ -29,10 +29,12 @@ class Engine:
 			self.sound = Sound.Sound(self)
 		
 		self.inGame = False
-		
-		self.mapSettings = Settings.getMapSettings()		
+		self.getMapSettings()		
 
 		self.mainMenu = Menus.MainMenu(self)
+
+	def getMapSettings(self):
+		self.mapSettings = Settings.getMapSettings()
 
 	def globalEvent(self, event): # Handle global events
 		# General events:
