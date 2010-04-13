@@ -167,14 +167,18 @@ class Graphics(MenuSystem.Menu):
 
 class Rules(MenuSystem.Menu):
 	def init(self):
-		self.maplist = Functions.getFolders("maps")
+		self.maplist = {}
+		for map in Functions.getFolders("maps"):
+			metadata = Settings.getMapMetadata(map)
+			if metadata != None:
+				self.maplist[map] = metadata["name"]
 
 	def addWidgets(self):
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/5,Settings.settings["Screen"]["height"]/24), 36,"Game rules"))
 
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,Settings.settings["Screen"]["height"]/6), 24,"Map"))
 		self.addWidget(self.DropMenu((3.6*Settings.settings["Screen"]["width"]/9,Settings.settings["Screen"]["height"]/6),
-			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), Settings.settings["Rules"]["map"], self.maplist, self.setMap))
+			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), Settings.settings["Rules"]["map"], self.maplist, self.setMap, None))
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,1.5*Settings.settings["Screen"]["height"]/6), 24,"Loading speed"))		
 		self.addWidget(self.Slider((3.6*Settings.settings["Screen"]["width"]/9,1.5*Settings.settings["Screen"]["height"]/6),
 			(2*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24),Settings.settings["Rules"]["loadingspeed"],(0,1000),self.setLoadingSpeed))
@@ -212,8 +216,11 @@ class Rules(MenuSystem.Menu):
 		Settings.settings["Rules"]["insta"] = value
 
 	def setMap(self, value, parameters):
-		Settings.settings["Rules"]["map"] = value
-		self.mapSettings = Settings.getMapMetadata()
+		self.mapSettings = Settings.getMapMetadata(value)
+		if self.mapSettings != None:
+			Settings.settings["Rules"]["map"] = value
+		else:
+			self.engine.messageBox.addMessage("Unable to load the selected map!")
 
 class Controls(MenuSystem.Menu):
 	def init(self):

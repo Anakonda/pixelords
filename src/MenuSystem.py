@@ -214,15 +214,15 @@ class Menu:
 				self.menu = menu
 				menu.engine.screen.fill((0,128,0),((self.x,self.y),(self.sizex,self.sizey)))
 
-				text = menu.engine.text.render(str(self.variable), True, (255,255,255))
+				text = menu.engine.text.render(str(self.values[self.variable]), True, (255,255,255))
 				menu.engine.screen.blit(text, (((2*self.x+self.sizex)-text.get_width())/2,((2*self.y+self.sizey)-text.get_height())/2))
 			else:
-				for i,value in enumerate([self.variable] + self.values):
+				for i,value in enumerate([self.variable] + self.values.keys()):
 					starty = self.y + self.sizey*i
 					endy = self.y + self.sizey*(i+1)
 					self.menu.engine.screen.fill((0,128,0),((self.x,starty),(self.sizex,self.sizey)))
 
-					text = self.menu.engine.text.render(str(value), True, (255,255,255))
+					text = self.menu.engine.text.render(str(self.values[value]), True, (255,255,255))
 					self.menu.engine.screen.blit(text, (((2*self.x+self.sizex)-text.get_width())/2,((starty+endy)-text.get_height())/2))
 
 		def action(self, menu, x,y):
@@ -237,8 +237,8 @@ class Menu:
 						mousex = pygame.mouse.get_pos()[0]/Settings.settings["Screen"]["scalefactor"]
 						mousey = pygame.mouse.get_pos()[1]/Settings.settings["Screen"]["scalefactor"]
 						if mousex <= self.sizex+self.x and mousex >= self.x:
-							if mousey >= self.y and mousey <= self.y + (len(self.values)+1)*self.sizey:
-								self.variable = self.values[int((mousey-self.y)/self.sizey-1)]
+							if mousey <= self.y + (len(self.values)+1)*self.sizey and int(mousey/self.sizey) > len(self.values)+1:
+								self.variable = self.values.keys()[int((mousey-self.y)/self.sizey-1)]
 								self.returnFunction(self.variable, self.parameters)
 						break
 				self.opened=False

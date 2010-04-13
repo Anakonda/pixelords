@@ -31,6 +31,13 @@ def getSpecificFiles(path, extension): # Get list of files with the requested ty
 				fileList.append(os.path.join(root,file))
 	return fileList
 
+def getFolders(path):
+	folderlist = []
+	for file in os.listdir(path):
+		if os.path.isdir(path + "/" + file):
+			folderlist.append(file)
+	return folderlist
+
 def returnAngle(angle):
 	while angle > 2*math.pi:
 		angle -= 2*math.pi
@@ -47,10 +54,3 @@ def formatException(engine, error):
 	traceback.print_exc()
 	print "#"*80
 	print
-
-def getFolders(path):
-	folderlist = []
-	for file in os.listdir(path):
-		if os.path.isdir(path + "/" + file):
-			folderlist.append(file)
-	return folderlist

@@ -30,7 +30,7 @@ class Engine:
 		
 		self.inGame = False
 		
-		self.mapSettings = Settings.getMapMetadata()
+		self.mapSettings = Settings.getMapMetadata(Settings.settings["Rules"]["map"])
 
 		self.mainMenu = Menus.MainMenu(self)
 
