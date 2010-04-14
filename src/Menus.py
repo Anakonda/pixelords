@@ -127,7 +127,13 @@ class Players(MenuSystem.Menu):
 		
 class Graphics(MenuSystem.Menu):
 	def init(self):
-		self.gfxlist = Functions.getFolders("gfx")
+		self.gfxlist = []
+		for gfx in Functions.getFolders("gfx"):	
+			self.gfxlist.append((gfx, gfx))
+
+		self.displayModes = []
+		for mode in pygame.display.list_modes():	
+			self.displayModes.append((mode,str(mode[0]) + "x" + str(mode[1])))
 		
 	def addWidgets(self):
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24), 36,"Graphics Options"))
@@ -138,15 +144,16 @@ class Graphics(MenuSystem.Menu):
 			(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), Settings.settings["Screen"]["showfps"], self.setFPS))
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/6), 24,"Show FPS"))
 		self.addWidget(self.DropMenu((3*Settings.settings["Screen"]["width"]/8,2*Settings.settings["Screen"]["height"]/6),
-			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), (Settings.settings["Screen"]["width"],Settings.settings["Screen"]["height"]), pygame.display.list_modes(), self.setResolution))
+			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), ((Settings.settings["Screen"]["width"],Settings.settings["Screen"]["height"]),
+			str(Settings.settings["Screen"]["width"])+"x"+str(Settings.settings["Screen"]["height"])), self.displayModes, self.setResolution))
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,2*Settings.settings["Screen"]["height"]/6), 24,"Resolution"))
 		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"OK", self.goBack))
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,2.5*Settings.settings["Screen"]["height"]/6), 24,"Graphics theme"))
 		self.addWidget(self.DropMenu((3*Settings.settings["Screen"]["width"]/8,2.5*Settings.settings["Screen"]["height"]/6),
-			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), Settings.settings["Rules"]["gfxtheme"], self.gfxlist, self.setGfxTheme))
+			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), (Settings.settings["Rules"]["gfxtheme"],Settings.settings["Rules"]["gfxtheme"]), self.gfxlist, self.setGfxTheme))
 		
 	def setGfxTheme(self, value, parameters):
-		Settings.settings["Rules"]["gfxtheme"] = value
+		Settings.settings["Rules"]["gfxtheme"] = value[0]
 		
 	def setFullscreen(self, value):
 		Settings.settings["Screen"]["fullscreen"] = value
@@ -156,8 +163,8 @@ class Graphics(MenuSystem.Menu):
 		Settings.settings["Screen"]["showfps"] = value
 		
 	def setResolution(self, value, parameters):
-		Settings.settings["Screen"]["width"] = value[0]
-		Settings.settings["Screen"]["height"] = value[1]
+		Settings.settings["Screen"]["width"] = value[0][0]
+		Settings.settings["Screen"]["height"] = value[0][1]
 		self.widgets = []
 		self.addWidgets()
 		self.engine.initScreen()
@@ -167,18 +174,18 @@ class Graphics(MenuSystem.Menu):
 
 class Rules(MenuSystem.Menu):
 	def init(self):
-		self.maplist = {}
+		self.maplist = []
 		for map in Functions.getFolders("maps"):
 			metadata = Settings.getMapMetadata(map)
 			if metadata != None:
-				self.maplist[map] = metadata["name"]
+				self.maplist.append((map, metadata["name"]))
 
 	def addWidgets(self):
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/5,Settings.settings["Screen"]["height"]/24), 36,"Game rules"))
 
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,Settings.settings["Screen"]["height"]/6), 24,"Map"))
 		self.addWidget(self.DropMenu((3.6*Settings.settings["Screen"]["width"]/9,Settings.settings["Screen"]["height"]/6),
-			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), Settings.settings["Rules"]["map"], self.maplist, self.setMap, None))
+			(2*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["width"]/32), (Settings.settings["Rules"]["map"],Settings.settings["Rules"]["map"]), self.maplist, self.setMap, None))
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,1.5*Settings.settings["Screen"]["height"]/6), 24,"Loading speed"))		
 		self.addWidget(self.Slider((3.6*Settings.settings["Screen"]["width"]/9,1.5*Settings.settings["Screen"]["height"]/6),
 			(2*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24),Settings.settings["Rules"]["loadingspeed"],(0,1000),self.setLoadingSpeed))
@@ -216,9 +223,9 @@ class Rules(MenuSystem.Menu):
 		Settings.settings["Rules"]["insta"] = value
 
 	def setMap(self, value, parameters):
-		self.mapSettings = Settings.getMapMetadata(value)
+		self.mapSettings = Settings.getMapMetadata(value[0])
 		if self.mapSettings != None:
-			Settings.settings["Rules"]["map"] = value
+			Settings.settings["Rules"]["map"] = value[0]
 		else:
 			self.engine.messageBox.addMessage("Unable to load the selected map!")
 
@@ -235,15 +242,15 @@ class Controls(MenuSystem.Menu):
 		self.addWidget(self.Label((6*Settings.settings["Screen"]["width"]/7-5,Settings.settings["Screen"]["height"]/4), 20,"Trusters"))
 		for playerId in range(0,Settings.settings["Rules"]["playeramount"]):
 			self.addWidget(self.Label((Settings.settings["Screen"]["width"]/16,(playerId+2.5)*Settings.settings["Screen"]["height"]/8), 24,Settings.settings["Players"][playerId]["name"]))
-			self.addWidget(self.OneKey((2*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
+			self.addWidget(self.GetKey((2*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
 				(2*Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["height"]/24), Settings.settings["Players"][playerId]["controls"]["rotate1"], self.setPlayerKeys, (playerId,"rotate1")))
-			self.addWidget(self.OneKey((3*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
+			self.addWidget(self.GetKey((3*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
 				(2*Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["height"]/24), Settings.settings["Players"][playerId]["controls"]["rotate2"], self.setPlayerKeys, (playerId,"rotate2")))
-			self.addWidget(self.OneKey((4*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
+			self.addWidget(self.GetKey((4*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
 				(2*Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["height"]/24), Settings.settings["Players"][playerId]["controls"]["shoot1"], self.setPlayerKeys, (playerId,"shoot1")))
-			self.addWidget(self.OneKey((5*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
+			self.addWidget(self.GetKey((5*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
 				(2*Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["height"]/24), Settings.settings["Players"][playerId]["controls"]["shoot2"], self.setPlayerKeys, (playerId,"shoot2")))
-			self.addWidget(self.OneKey((6*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
+			self.addWidget(self.GetKey((6*Settings.settings["Screen"]["width"]/7,(2.5+playerId)*Settings.settings["Screen"]["height"]/8),
 				(2*Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["height"]/24), Settings.settings["Players"][playerId]["controls"]["thrust"], self.setPlayerKeys, (playerId,"thrust")))
 
 		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"OK", self.goBack))
