@@ -34,7 +34,7 @@ class Ship(Objects.Object):
 		self.shipModel = eval("ShipTypes." + shipType)()
 
 		self.shipModel.hp = (13*self.shipModel.strength+60)*(Settings.settings["Rules"]["shipstrength"]/100.0)
-		self.shipModel.acceleration = 0.0075*self.shipModel.acceleration+0.040
+		self.shipModel.acceleration = 0.009*self.shipModel.acceleration+0.055
 		self.shipModel.loadingSpeed = 15*self.shipModel.loadingSpeed+40
 
 		self.sprite(self.shipModel.image)
@@ -97,7 +97,7 @@ class Ship(Objects.Object):
 		pixel = map.mask[x][y]
 		if pixel == map.maskimage.map_rgb((150,90,20,255)): # Dirt
 			self.dx -= self.dx/5
-			self.dy -= self.dy/5 + 1.7*0.008
+			self.dy -= self.dy/5 + 0.02
 		elif pixel == map.maskimage.map_rgb((255,0,0,255)): # Insta death area
 			self.explode(map)
 		else:

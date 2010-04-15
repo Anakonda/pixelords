@@ -142,9 +142,6 @@ class Object(pygame.sprite.Sprite):
 								ysum += y
 								points += 1
 
-								"""map.visual.set_at((x,y), (255,0,0,255))
-								map.screenImage.set_at((x,y), (255,0,0,255))"""
-
 			if points > 0 and points < 0.95*math.pi*size**2:
 				hitx = float(xsum)/points
 				hity = float(ysum)/points
@@ -159,9 +156,6 @@ class Object(pygame.sprite.Sprite):
 				normalAngle = None
 
 			if normalAngle != None:
-				"""pygame.draw.line(map.screenImage, (255,0,0,255), (self.x-50,-50*math.tan(normalAngle)+self.y), (self.x+50,50*math.tan(normalAngle)+self.y))
-				self.redrawLine(map,self.x,self.y,x,y)"""
-
 				if self.dx == 0:
 					collisionAngle = math.pi/2
 				else:
@@ -177,12 +171,6 @@ class Object(pygame.sprite.Sprite):
 						resultAngle = 2*normalAngle - collisionAngle
 					else:
 						resultAngle = 2*normalAngle - collisionAngle + math.pi
-
-				"""pygame.draw.line(map.screenImage, (255,255,0,255), (self.x-50,-50*math.tan(collisionAngle)+self.y), (self.x+50,50*math.tan(collisionAngle)+self.y))
-				self.redrawLine(map,self.x,self.y,x,y)
-
-				pygame.draw.line(map.screenImage, (0,0,255,255), (self.x-50,-50*math.tan(resultAngle)+self.y), (self.x+50,50*math.tan(resultAngle)+self.y))
-				self.redrawLine(map,self.x,self.y,x,y)"""
 
 				self.dx = math.sqrt(self.dx**2+self.dy**2)*math.cos(resultAngle)
 				self.dy = math.sqrt(self.dx**2+self.dy**2)*math.sin(resultAngle)
@@ -273,10 +261,10 @@ class Object(pygame.sprite.Sprite):
 		self.y += self.dy
 
 		if self.gravity:
-			self.dy += 0.017 # Gravity
+			self.dy += 0.025 # Gravity
 
-		self.dx -= self.airResistance*0.00036*self.dx**3/math.fabs(self.dx+0.0001) # Air resistance
-		self.dy -= self.airResistance*0.00036*self.dy**3/math.fabs(self.dy+0.0001)
+		self.dx -= self.airResistance*0.0002*self.dx**3/math.fabs(self.dx+0.0001) # Air resistance
+		self.dy -= self.airResistance*0.0002*self.dy**3/math.fabs(self.dy+0.0001)
 
 		if self.thrust: # Thrusters
 			self.dx += self.acceleration*math.cos(self.angle)
@@ -438,7 +426,7 @@ class WeaponChanger(Object):
 class ThrustFlame(Object):
 	def init(self):
 		self.airResistance = 60
-		self.lifetime = 10
+		self.lifetime = 7
 
 		self.explosionSizeFactor = 50
 		self.hitsWater = True
