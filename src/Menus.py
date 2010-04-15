@@ -40,10 +40,16 @@ class Options(MenuSystem.Menu):
 	def addWidgets(self):
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/4,Settings.settings["Screen"]["height"]/24),36,"Options"))
 	
-		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Players",self.gotoPlayersMenu))
-		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,3*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Graphics",self.gotoGraphicsMenu))
-		self.addWidget(self.Button((4.5*Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Game rules",self.gotoRulesMenu))
-		self.addWidget(self.Button((4.5*Settings.settings["Screen"]["width"]/8,3*Settings.settings["Screen"]["height"]/8),(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Controls",self.gotoControlsMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/8),
+			(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Players",self.gotoPlayersMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,3*Settings.settings["Screen"]["height"]/8),
+			(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Graphics",self.gotoGraphicsMenu))
+		self.addWidget(self.Button((4.5*Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/8),
+			(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Game rules",self.gotoRulesMenu))
+		self.addWidget(self.Button((4.5*Settings.settings["Screen"]["width"]/8,3*Settings.settings["Screen"]["height"]/8),
+			(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Controls",self.gotoControlsMenu))
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/8,4.5*Settings.settings["Screen"]["height"]/8),
+			(4*Settings.settings["Screen"]["width"]/12,Settings.settings["Screen"]["height"]/10),"Audio",self.gotoSoundMenu))
 
 		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Back", self.goBack))
 		self.addWidget(self.Button((9*Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6), (Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"Save", self.Save))
@@ -78,6 +84,15 @@ class Options(MenuSystem.Menu):
 	def gotoRulesMenu(self, menu, x,y):
 		try:
 			RulesMenu = Rules(self.engine)
+		except Exception as error:
+			Functions.formatException(self.engine, error)
+
+		self.widgets = []
+		self.addWidgets()
+
+	def gotoSoundMenu(self, menu, x,y):
+		try:
+			SoundMenu = Sound(self.engine)
 		except Exception as error:
 			Functions.formatException(self.engine, error)
 
@@ -260,4 +275,44 @@ class Controls(MenuSystem.Menu):
 		
 	def setPlayerKeys(self, value, (playerId,Key)):
 		Settings.settings["Players"][playerId]["controls"][Key] = value
+
+class Sound(MenuSystem.Menu):
+	def init(self):
+		pass
+
+	def addWidgets(self):
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24), 36,"Audio Options"))
+		self.addWidget(self.CheckBox((3*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/6),
+			(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), Settings.settings["Sound"]["enabled"], self.setSoundEnabled))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/6),24,"Sound enabled"))
+		self.addWidget(self.CheckBox((3*Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/6),
+			(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), Settings.settings["Sound"]["music"], self.setMusic))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/8,1.5*Settings.settings["Screen"]["height"]/6), 24,"Music"))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,3.5*Settings.settings["Screen"]["height"]/6), 24,"Music volume"))		
+		self.addWidget(self.Slider((3.6*Settings.settings["Screen"]["width"]/9,3.5*Settings.settings["Screen"]["height"]/6),
+			(2*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24),100*Settings.settings["Sound"]["musicvolume"],(1,100),self.setMusicVolume))
+
+		self.addWidget(self.Button((Settings.settings["Screen"]["width"]/12,5*Settings.settings["Screen"]["height"]/6),(Settings.settings["Screen"]["width"]/6,Settings.settings["Screen"]["height"]/8),"OK", self.goBack))
+
+	def setSoundEnabled(self, value):
+		Settings.settings["Sound"]["enabled"] = value
+		if Settings.settings["Sound"]["music"]:
+			if Settings.settings["Sound"]["enabled"]:
+				self.engine.sound.loadMusic()
+			else:
+				pygame.mixer.music.stop()
 		
+	def setMusic(self, value):
+		Settings.settings["Sound"]["music"] = value
+		if Settings.settings["Sound"]["enabled"]:
+			if Settings.settings["Sound"]["music"]:
+				self.engine.sound.loadMusic()
+			else:
+				pygame.mixer.music.stop()
+		
+	def setMusicVolume(self, value, parameters):
+		Settings.settings["Sound"]["musicvolume"] = value/100.0
+		pygame.mixer.music.set_volume(Settings.settings["Sound"]["musicvolume"])
+		
+	def goBack(self, menu, x,y):
+		self.quit()
