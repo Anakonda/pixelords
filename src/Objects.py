@@ -279,12 +279,6 @@ class Object(pygame.sprite.Sprite):
 			else:
 				self.angle = math.atan(self.dy/self.dx)+2*math.pi/2
 
-		if self.rotateWithSpeed:
-			if self.dx >= 0:
-				self.angle = math.atan(self.dy/self.dx)+math.pi/2
-			else:
-				self.angle = math.atan(self.dy/self.dx)+3*math.pi/2
-
 	def explode(self,map): # Explode
 		size = self.explosionSizeFactor*self.size
 

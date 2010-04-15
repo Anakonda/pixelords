@@ -204,7 +204,7 @@ class Rules(MenuSystem.Menu):
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,1.5*Settings.settings["Screen"]["height"]/6), 24,"Loading speed"))		
 		self.addWidget(self.Slider((3.6*Settings.settings["Screen"]["width"]/9,1.5*Settings.settings["Screen"]["height"]/6),
 			(2*Settings.settings["Screen"]["width"]/8,Settings.settings["Screen"]["height"]/24),Settings.settings["Rules"]["loadingspeed"],(0,1000),self.setLoadingSpeed))
-		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,2*Settings.settings["Screen"]["height"]/6), 24,"Reset wapons on death"))
+		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,2*Settings.settings["Screen"]["height"]/6), 24,"Reset weapons on death"))
 		self.addWidget(self.CheckBox((3.6*Settings.settings["Screen"]["width"]/9,2*Settings.settings["Screen"]["height"]/6),
 			(Settings.settings["Screen"]["width"]/24,Settings.settings["Screen"]["width"]/24), Settings.settings["Rules"]["resetweaponsondeath"], self.setResetWeaponsOnDeath))
 		self.addWidget(self.Label((Settings.settings["Screen"]["width"]/20,2.5*Settings.settings["Screen"]["height"]/6), 24,"Insta mode"))

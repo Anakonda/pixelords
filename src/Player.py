@@ -74,8 +74,8 @@ class Player:
 						self.spawnMessage = True
 						self.shoot1 = False
 						self.shoot2 = False
-
-						self.ship.resetWeapons()
+						if Settings.settings["Rules"]["resetweaponsondeath"]:
+							self.ship.resetWeapons()
 
 			else:
 				self.shoot()
