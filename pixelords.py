@@ -3,6 +3,6 @@
 
 print "Loading..."
 
-from src import Game
+import src
 
-game = Game.Game()
+game = src.Engine()

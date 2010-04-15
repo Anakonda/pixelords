@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import pygame
+import colorsys
 import math
-import os
 import random
 
 import Settings
 import Functions
 import Sound
+import Weapons
 
 class Object(pygame.sprite.Sprite):
 	def __init__(self, game, owner, x=0,y=0, dx=0,dy=0, color=(176,176,176,255)):
@@ -27,6 +28,7 @@ class Object(pygame.sprite.Sprite):
 		self.color = color
 		self.isSprite = False
 		self.rotateWithSpeed = False
+		self.colorize = False
 
 		self.explosionCollision = True
 		self.isShip = False
@@ -39,6 +41,9 @@ class Object(pygame.sprite.Sprite):
 		self.onShipCollision = True
 		self.onShipDamage = 0
 		self.onShipExplode = True
+		self.bounce = False
+		self.hitsWater = False
+		self.floats = False
 
 		self.thrust = False
 		self.rotate = 0
@@ -54,6 +59,16 @@ class Object(pygame.sprite.Sprite):
 		self.image = self.baseImage
 		self.rect = self.image.get_rect()
 		self.rect.center = (self.x, self.y)
+
+		if self.colorize:
+			for x in range(self.baseImage.get_width()):
+				for y in range(self.baseImage.get_height()):
+					ownhue = colorsys.rgb_to_hls(self.owner.color[0]/255.0, self.owner.color[1]/255.0, self.owner.color[2]/255.0)[0]
+					color = colorsys.rgb_to_hls(self.baseImage.get_at((x,y))[0]/255.0, self.baseImage.get_at((x,y))[1]/255.0, self.baseImage.get_at((x,y))[2]/255.0)
+
+					newcolor = colorsys.hls_to_rgb(ownhue, color[1], color[2])
+
+					self.baseImage.set_at((x,y), (newcolor[0]*255, newcolor[1]*255, newcolor[2]*255, self.baseImage.get_at((x,y))[3]))
 
 	def spriteDraw(self, map): # Sprite drawing
 		if self.angle != 0:
@@ -97,11 +112,84 @@ class Object(pygame.sprite.Sprite):
 		pass
 
 	def onGroundHit(self,map,x,y): # Triggered on ground hit
-		if self.onGroundExplode:
-			self.x = x
-			self.y = y
+		self.x = x
+		self.y = y
 
+		if self.bounce:
+			size = 10
+
+			xsum = 0
+			ysum = 0
+			points = 0
+
+			if int(self.x+size) > map.width:
+				right = map.width
+			else:
+				right = int(self.x+size)
+
+			if int(self.x-size) < 0:
+				left = 0
+			else:
+				left = int(self.x-size)
+
+			for x in range(left, right):
+				if (x-self.x)/(size+0.01) >= -1:
+					for y in range(int((-math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y), int((math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y)):
+						if y < map.height and y >= 0:
+							maskValue = map.mask[x][y]
+							if maskValue != map.maskimage.map_rgb((0,0,0, 255)):
+								xsum += x
+								ysum += y
+								points += 1
+
+			if points > 0 and points < 0.95*math.pi*size**2:
+				hitx = float(xsum)/points
+				hity = float(ysum)/points
+
+				if hitx-self.x == 0 and hity-self.y != 0:
+					normalAngle = math.pi/2
+				elif hitx-self.x == 0 and hity-self.y == 0:
+					normalAngle = None
+				else:
+					normalAngle = math.atan((hity-self.y)/(hitx-self.x))
+			else:
+				normalAngle = None
+
+			if normalAngle != None:
+				if self.dx == 0:
+					collisionAngle = math.pi/2
+				else:
+					collisionAngle = math.atan(self.dy/self.dx)
+
+				if Functions.returnAngle(normalAngle) < Functions.returnAngle(collisionAngle):
+					if (self.dy > 0 and self.dx > 0) or (self.dy > 0 and self.dx < 0) or (self.dy < 0 and self.dx < 0):
+						resultAngle = 2*normalAngle - collisionAngle
+					else:
+						resultAngle = 2*normalAngle - collisionAngle + math.pi
+				else:
+					if (self.dy < 0 and self.dx < 0) or (self.dy > 0 and self.dx < 0):
+						resultAngle = 2*normalAngle - collisionAngle
+					else:
+						resultAngle = 2*normalAngle - collisionAngle + math.pi
+
+				self.dx = math.sqrt(self.dx**2+self.dy**2)*math.cos(resultAngle)
+				self.dy = math.sqrt(self.dx**2+self.dy**2)*math.sin(resultAngle)
+			else:
+				self.explode(map)
+		elif self.onGroundExplode:
 			self.explode(map)
+
+	def onWaterHit(self,map,x,y): # Triggered on water hit
+		if self.hitsWater:
+			self.onGroundHit(map,x,y)
+		else:
+			self.dx -= self.dx/75
+			self.dy -= self.dy/75 + 0.01
+
+			self.rotate -= self.rotate/40.0
+
+			if self.floats:
+				self.dy -= 0.025
 
 	def onBorderHit(self,map,x,y): # Triggered on map border hit
 		self.onGroundHit(map,x,y)
@@ -144,12 +232,17 @@ class Object(pygame.sprite.Sprite):
 		for x in xrange:
 			for y in yrange:
 				if not(groundHit):
-					if x >= map.width or x < 0 or y >=  map.height or y < 0:
+					if x >= map.width or x < 0 or y >= map.height or y < 0:
 						groundHit = True
 						self.onBorderHit(map,x,y)
-					elif map.mask[x][y] != map.maskimage.map_rgb((0, 0, 0, 255)):
-						groundHit = True
-						self.onGroundHit(map,x,y)
+					else:
+						maskValue = map.mask[x][y]
+						if maskValue == map.maskimage.map_rgb((0, 0, 255, 255)):
+							groundHit = True
+							self.onWaterHit(map,x,y)
+						elif maskValue != map.maskimage.map_rgb((0, 0, 0, 255)):
+							groundHit = True
+							self.onGroundHit(map,x,y)
 
 				if not(shipHit) and not(self.isShip):
 					for player in self.game.players:
@@ -168,17 +261,23 @@ class Object(pygame.sprite.Sprite):
 		self.y += self.dy
 
 		if self.gravity:
-			self.dy += 0.01 # Gravity
+			self.dy += 0.025 # Gravity
 
-		self.dx -= self.airResistance*0.0003*self.dx**3/math.fabs(self.dx+0.0001) # Air resistance
-		self.dy -= self.airResistance*0.0003*self.dy**3/math.fabs(self.dy+0.0001)
+		self.dx -= self.airResistance*0.0002*self.dx**3/math.fabs(self.dx+0.0001) # Air resistance
+		self.dy -= self.airResistance*0.0002*self.dy**3/math.fabs(self.dy+0.0001)
 
 		if self.thrust: # Thrusters
 			self.dx += self.acceleration*math.cos(self.angle)
 			self.dy += self.acceleration*math.sin(self.angle)
 
 		if self.rotate != 0: # Rotation
-			self.angle += self.rotate*0.04+random.uniform(-0.005, 0.005)
+			self.angle += self.rotate*0.07+random.uniform(-0.008, 0.008)
+
+		if self.rotateWithSpeed:
+			if self.dx >= 0:
+				self.angle = math.atan(self.dy/self.dx)
+			else:
+				self.angle = math.atan(self.dy/self.dx)+2*math.pi/2
 
 		if self.rotateWithSpeed:
 			if self.dx >= 0:
@@ -190,7 +289,7 @@ class Object(pygame.sprite.Sprite):
 		size = self.explosionSizeFactor*self.size
 
 		if size > 10:
-			Sound.playSound(self.game, 0)
+			Sound.playSound(self.game.engine, 0, False)
 
 		if int(self.x+size) > map.width:
 			right = map.width
@@ -207,7 +306,7 @@ class Object(pygame.sprite.Sprite):
 				for y in range(int((-math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y), int((math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y)):
 					if y < map.height and y >= 0:
 						maskValue = map.mask[x][y]
-						if maskValue != map.maskimage.map_rgb((127, 127, 127, 255)) and maskValue != map.maskimage.map_rgb((255, 0, 0, 255)) and maskValue != map.maskimage.map_rgb((0, 0, 0, 255)):
+						if maskValue != map.maskimage.map_rgb((127, 127, 127, 255)) and maskValue != map.maskimage.map_rgb((255, 0, 0, 255)) and maskValue != map.maskimage.map_rgb((0, 0, 0, 255)) and maskValue != map.maskimage.map_rgb((0, 0, 255, 255)):
 							map.mask[x][y] = (0, 0, 0)
 							map.visual.set_at((x,y),map.background[x][y])
 							map.screenImage.set_at((x,y), map.background[x][y])
@@ -303,11 +402,12 @@ class WeaponChanger(Object):
 		self.explosionSizeFactor = 2
 		self.explosionParticleFactor = 2
 		self.size = 10
+
 		self.heavy = random.randint(0,1)
 		if self.heavy:
-			self.newWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
+			self.newWeapon = eval("Weapons." + Settings.settings["Weapons"]["heavy"][random.randint(0,len(Settings.settings["Weapons"]["heavy"])-1)])(self.game)
 		else:
-			self.newWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
+			self.newWeapon = eval("Weapons." + Settings.settings["Weapons"]["light"][random.randint(0,len(Settings.settings["Weapons"]["light"])-1)])(self.game)
 
 		self.randomizeLocation(self.game.map)
 
@@ -324,7 +424,7 @@ class WeaponChanger(Object):
 	def draw(self, map):
 		self.spriteDraw(map)
 
-		self.text = self.game.text4.render(self.newWeapon.name, True, (255,255,255))
+		self.text = self.game.engine.text4.render(self.newWeapon.name, True, (255,255,255))
 
 		self.game.map.screenImage.blit(self.text, (self.x-self.text.get_width()/2-1,self.y-23))
 		self.game.map.redraw((int(self.x-self.text.get_width()/2-1),int(self.y-23)),(self.text.get_width(), self.text.get_height()))
@@ -332,9 +432,10 @@ class WeaponChanger(Object):
 class ThrustFlame(Object):
 	def init(self):
 		self.airResistance = 60
-		self.lifetime = 10
+		self.lifetime = 7
 
 		self.explosionSizeFactor = 50
+		self.hitsWater = True
 
 		self.checkCollisions = False
 		self.explosionCollision = False
@@ -360,7 +461,7 @@ class ThrustFlame(Object):
 class Smoke(Object):
 	def init(self):
 		self.airResistance = 60
-		self.lifetime = 20
+		self.lifetime = 12
 
 		self.explosionSizeFactor = 50
 
@@ -368,6 +469,7 @@ class Smoke(Object):
 		self.onGroundExplode = False
 		self.onShipCollision = False
 		self.explosionCollision = False
+		self.floats = True
 
 		self.lightness = random.randint(170,255)
 		self.color = (self.lightness, self.lightness, self.lightness)
@@ -397,7 +499,7 @@ class Eraser(Object):
 		self.onGroundExplode = False
 		self.onShipCollision = False
 
-		self.lifetime = 500
+		self.lifetime = 300
 		self.counter = 0
 
 		self.airResistance = 0
@@ -438,7 +540,7 @@ class Eraser(Object):
 			self.counter -= 1
 
 	def draw(self,map):
-		if self.lifetime > 150:
+		if self.lifetime > 90:
 			color = (random.randint(200,255),random.randint(0,100),0,255)
 		else:
 			color = (0,random.randint(0,100),random.randint(200,255),255)
@@ -449,7 +551,7 @@ class Eraser(Object):
 class Flame(Object):
 	def init(self):
 		self.airResistance = 60
-		self.lifetime = 20
+		self.lifetime = 12
 
 		self.explosionSizeFactor = 50
 		self.checkCollisions = True
@@ -458,6 +560,7 @@ class Flame(Object):
 		self.onShipDamage = 1.00
 		self.onShipExplode = False
 		self.explosionCollision = False
+		self.hitsWater = True
 
 		self.red = random.randint(170,255)
 		self.green = self.red
@@ -479,6 +582,10 @@ class Flame(Object):
 		self.x = x
 		self.y = y
 		self.destroy(map)
+
+	def onWaterHit(self,map,x,y):
+		self.game.objects.append(Smoke(self.game, self.owner, self.x+self.dx, self.y+self.dy))
+		self.onGroundHit(map,x,y)
 
 class Laser(Object):
 	def init(self):
@@ -511,7 +618,7 @@ class Laser(Object):
 			if x >= map.width-1 or x < 0 or y >= map.height-1 or y < 0 or map.mask[int(x)][int(y)] != map.maskimage.map_rgb((0, 0, 0, 255)):
 				Hit = True
 
-		pygame.draw.aaline(map.screenImage, (255,0,0,255), (self.x,self.y), (x,y))
+		pygame.draw.line(map.screenImage, (255,0,0,255), (self.x,self.y), (x,y))
 		self.redrawLine(map,self.x,self.y,x,y)
 
 		self.destroy(map)
@@ -530,7 +637,7 @@ class InstaRail(Object):
 		self.gravity = False
 
 		self.color = self.owner.color
-		self.lifetime = 100
+		self.lifetime = 60
 
 		self.targetx = self.dx
 		self.targety = self.dy
@@ -539,7 +646,7 @@ class InstaRail(Object):
 		self.dy = 0
 
 	def draw(self, map):
-		if self.lifetime == 100:
+		if self.lifetime == 60:
 			x = self.x
 			y = self.y
 
@@ -576,6 +683,7 @@ class Mine(Object):
 		self.explosionSizeFactor = 2.5
 		self.explosionParticleFactor = 2
 		self.size = 10
+		self.floats = True
 
 		self.sprite("mine.png")
 
@@ -600,10 +708,10 @@ class Missile(Object):
 		self.angle = self.owner.ship.angle
 
 		self.activationTime = 30
-		self.fuel = 500
+		self.fuel = 300
 		self.target = None
 
-		self.acceleration = 0.05
+		self.acceleration = 0.085
 
 		self.sprite("missile.png")
 
@@ -620,7 +728,7 @@ class Missile(Object):
 				if target != None:
 					if self.target == None:
 						self.target = target
-						Sound.playSound(self.game, 6)
+						Sound.playSound(self.game.engine, 6, False)
 					elif target == self.target:
 						predictedTargetX = target.x - 5*self.dx
 						predictedTargetY = target.y - 5*self.dy
@@ -640,14 +748,14 @@ class Missile(Object):
 
 						if predictedTargetY > predictedSelfY:
 							if Functions.returnAngle(self.angle) < Functions.returnAngle(targetAngle) or Functions.returnAngle(self.angle) > Functions.returnAngle(targetAngle + math.pi):
-								self.angle += 0.075
+								self.angle += 0.1275
 							else:
-								self.angle -= 0.075
+								self.angle -= 0.1275
 						elif predictedTargetY < predictedSelfY:
 							if Functions.returnAngle(self.angle) < Functions.returnAngle(targetAngle + math.pi) or Functions.returnAngle(self.angle) > Functions.returnAngle(targetAngle):
-								self.angle -= 0.075
+								self.angle -= 0.1275
 							else:
-								self.angle += 0.075
+								self.angle += 0.1275
 
 						if math.fabs(Functions.returnAngle(self.angle) - targetAngle) < math.pi/8:
 							self.fuel -= 1
@@ -659,6 +767,47 @@ class Missile(Object):
 					self.thrust = False
 					self.activationTime = 10
 					self.target = None
+
+class Bolt(Object):
+	def init(self):
+		self.size = 4
+		self.explosionSizeFactor = 1.25
+		self.explosionParticleFactor = 0
+		self.onShipDamage = 15
+		self.explosionCollision = False
+
+		self.airResistance = 20
+		self.rotateWithSpeed = True
+
+		self.activationTime = 5
+		self.target = None
+
+		self.acceleration = 0.1
+
+		self.sprite("bolt.png")
+
+	def check(self, map):
+		if self.activationTime > 0:
+			self.activationTime -= 1
+		else:
+			target = self.getClosestShip(500)
+			if target != None:
+				if self.target == None:
+					self.target = target
+				elif target == self.target:
+					if target.y > self.y:
+						self.dy += self.acceleration
+					else:
+						self.dy -= self.acceleration
+
+					if target.x > self.x:
+						self.dx += self.acceleration
+					else:
+						self.dx -= self.acceleration
+
+			else:
+				self.activationTime = 10
+				self.target = None
 
 class Bomb(Object):
 	def init(self):
@@ -702,14 +851,15 @@ class Dirtball(Object):
 			if (x-self.x)/(size+0.01) >= -1:
 				for y in range(int((-math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y), int((math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y)):
 					if y < map.height and y > 0:
-						if map.mask[x][y] == map.maskimage.map_rgb((0,0,0,255)):
+						maskValue = map.mask[x][y]
+						if maskValue == map.maskimage.map_rgb((0,0,0,255)) or maskValue == map.maskimage.map_rgb((0,0,255,255)):
 							rand = random.randint(-20,20)
 
 							map.mask[x][y] = (150,90,20,255)
 							map.visual.set_at((x,y),(145+rand,95+rand,20+rand,255))
 							map.screenImage.set_at((x,y),(145+rand,95+rand,20+rand,255))
 
-		Sound.playSound(self.game, 5)
+		Sound.playSound(self.game.engine, 5, False)
 
 		self.destroy(map)
 
@@ -737,6 +887,7 @@ class Larpa(Object):
 		self.drop = 0
 		self.explosionSizeFactor = 1.5
 		self.explosionParticleFactor = 0
+		self.bounce = True
 
 	def check(self, map):
 		if self.drop == 4:
@@ -746,13 +897,6 @@ class Larpa(Object):
 				self.size -= 0.1
 		else:
 			self.drop += 1
-
-	def onGroundHit(self,map,x,y):
-		if (self.x-self.oldx)**2+(self.y-self.oldy)**2 > 3**2:
-			self.dx = -self.dx
-			self.dy = -self.dy
-		else:
-			self.destroy(map)
 
 class Radiation(Object):
 	def init(self):
@@ -820,3 +964,52 @@ class RifleBullet(Object):
 
 		self.size = 2
 		self.onShipDamage = 50
+
+class WaterBall(Object):
+	def init(self):
+		self.size = 3
+		self.explosionSizeFactor = 5
+		self.explosionCollision = False
+		self.airResistance = 5
+		self.hitsWater = True
+
+		self.sprite("waterball.png")
+
+	def explode(self,map): # Make water
+		size = self.explosionSizeFactor*self.size
+
+		if int(self.x+size) > map.width:
+			right = map.width
+		else:
+			right = int(self.x+size)
+
+		if int(self.x-size) < 0:
+			left = 0
+		else:
+			left = int(self.x-size)
+
+		for x in range(left, right):
+			if (x-self.x)/(size+0.01) >= -1:
+				for y in range(int((-math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y), int((math.sin(math.acos((x-self.x)/(size+0.01)))*size)+self.y)):
+					if y < map.height and y > 0:
+						if map.mask[x][y] == map.maskimage.map_rgb((0,0,0,255)):
+							map.mask[x][y] = (0,0,255,255)
+							map.visual.set_at((x,y),(0,0,255,255))
+							map.screenImage.set_at((x,y),(0,0,255,255))
+							self.game.map.waters.append((x,y))
+
+		self.destroy(map)
+
+class Grenade(Object):
+	def init(self):
+		self.size = 4
+		self.explosionSizeFactor = 3
+		self.explosionParticleFactor = 5
+		self.lifetime = 150
+		self.bounce = True
+
+	def check(self, map):
+		if self.lifetime == 0:
+			self.explode(map)
+		else:
+			self.lifetime -= 1

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import Settings
+
 class MessageBox:
 	def __init__(self):
 		self.show = 0
@@ -25,12 +27,18 @@ class InfoOverlay:
 	def __init__(self):
 		self.show = False
 
-	def draw(self, game):
+	def draw(self, engine):
 		if self.show:
-			game.screen.blit(game.text3.render("Hotkeys", True, (255,255,255)), (250,20))
-			game.screen.blit(game.text.render("ESC - Exit the game", True, (255,255,255)), (275,60))
-			game.screen.blit(game.text.render("F1 - Show this help", True, (255,255,255)), (275,80))
-			game.screen.blit(game.text.render("F5 - Toggle music", True, (255,255,255)), (275,100))
-			game.screen.blit(game.text.render("F10 - Save map", True, (255,255,255)), (275,120))
-			game.screen.blit(game.text.render("F11 - Take a full map screenshot", True, (255,255,255)), (275,140))
-			game.screen.blit(game.text.render("F12 - Take a normal screenshot", True, (255,255,255)), (275,160))
+			if engine.inGame:
+				engine.screen.fill((64,64,64),((Settings.settings["Screen"]["width"]-300,20),(275,180)))
+
+				engine.screen.blit(engine.text.render("F10 - Save map", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,160))
+				engine.screen.blit(engine.text.render("F11 - Take a full map screenshot", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,180))
+			else:
+				engine.screen.fill((64,64,64),((Settings.settings["Screen"]["width"]-300,20),(275,120)))
+
+			engine.screen.blit(engine.text3.render("Hotkeys", True, (255,255,255)), (Settings.settings["Screen"]["width"]-290,20))
+			engine.screen.blit(engine.text.render("ESC - Exit the game", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,60))
+			engine.screen.blit(engine.text.render("F1 - Show this help", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,80))
+			engine.screen.blit(engine.text.render("F5 - Toggle music", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,100))
+			engine.screen.blit(engine.text.render("F12 - Take a screenshot", True, (255,255,255)), (Settings.settings["Screen"]["width"]-280,120))

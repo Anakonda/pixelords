@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import pygame
-import colorsys
 import math
 import random
-import os
 
 import Settings
+import ShipTypes
 import Objects
+import Weapons
 
 class Ship(Objects.Object):
 	def init(self):
@@ -20,33 +19,25 @@ class Ship(Objects.Object):
 		self.airResistance = 10
 
 		self.thrust = False
-		self.rotate = 0
+		self.rotation = 0
 
 		self.disruption = 0
 
 		self.isSprite = True
 		self.isShip = True
+		self.floats = True
+		self.colorize = True
 
-		self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
-		self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
+		self.resetWeapons()
 
 	def setShipType(self, shipType): # Load the specific ship
-		self.shipModel = shipType()
+		self.shipModel = eval("ShipTypes." + shipType)()
 
-		self.shipModel.hp = (13*self.shipModel.strength+60)*(Settings.shipStrength/100.0)
-		self.shipModel.acceleration = 0.0045*self.shipModel.acceleration+0.022
+		self.shipModel.hp = (13*self.shipModel.strength+60)*(Settings.settings["Rules"]["shipstrength"]/100.0)
+		self.shipModel.acceleration = 0.009*self.shipModel.acceleration+0.055
 		self.shipModel.loadingSpeed = 15*self.shipModel.loadingSpeed+40
 
 		self.sprite(self.shipModel.image)
-
-		for x in range(self.baseImage.get_width()):
-			for y in range(self.baseImage.get_height()):
-				ownhue = colorsys.rgb_to_hls(self.color[0]/255.0, self.color[1]/255.0, self.color[2]/255.0)[0]
-				color = colorsys.rgb_to_hls(self.baseImage.get_at((x,y))[0]/255.0, self.baseImage.get_at((x,y))[1]/255.0, self.baseImage.get_at((x,y))[2]/255.0)
-
-				newcolor = colorsys.hls_to_rgb(ownhue, color[1], color[2])
-
-				self.baseImage.set_at((x,y), (newcolor[0]*255, newcolor[1]*255, newcolor[2]*255, self.baseImage.get_at((x,y))[3]))
 
 	def spawn(self): # Respawn the ship
 		self.randomizeLocation(self.game.map)
@@ -56,7 +47,7 @@ class Ship(Objects.Object):
 		self.angle = 3*math.pi/2
 
 		self.thrust = False
-		self.rotate = 0
+		self.rotation = 0
 
 		self.disruption = 0
 
@@ -65,6 +56,14 @@ class Ship(Objects.Object):
 		self.hp = self.shipModel.hp
 		self.acceleration = self.shipModel.acceleration
 		self.loadingSpeed = self.shipModel.loadingSpeed
+
+	def resetWeapons(self):
+		if Settings.settings["Rules"]["insta"]:
+			self.lightWeapon = Weapons.InstaGun(self.game)
+			self.heavyWeapon = Weapons.Reverse(self.game)
+		else:
+			self.lightWeapon = eval("Weapons." + Settings.settings["Weapons"]["light"][random.randint(0,len(Settings.settings["Weapons"]["light"])-1)])(self.game)
+			self.heavyWeapon = eval("Weapons." + Settings.settings["Weapons"]["heavy"][random.randint(0,len(Settings.settings["Weapons"]["heavy"])-1)])(self.game)
 
 	def draw(self, map): # Drawing
 		if self.thrust:
@@ -80,13 +79,11 @@ class Ship(Objects.Object):
 
 	def destroy(self, map): # Destroy the ship
 		if self.active:
-			if Settings.resetWeaponsOnDeath:
-				self.lightWeapon = Settings.lightWeapons[random.randint(0,len(Settings.lightWeapons)-1)](self.game)
-				self.heavyWeapon = Settings.heavyWeapons[random.randint(0,len(Settings.heavyWeapons)-1)](self.game)
-
 			self.active = False
 
 	def check(self, map): # Check for actions
+		self.rotate = self.rotation
+
 		if self.hp < self.shipModel.hp/6:
 			self.hp -= self.shipModel.hp/10000.0
 
@@ -97,10 +94,11 @@ class Ship(Objects.Object):
 		self.heavyWeapon.check(self)
 
 	def onGroundHit(self,map,x,y):
-		if map.mask[x][y] == map.maskimage.map_rgb((150,90,20,255)): # Dirt
+		pixel = map.mask[x][y]
+		if pixel == map.maskimage.map_rgb((150,90,20,255)): # Dirt
 			self.dx -= self.dx/5
-			self.dy -= self.dy/5 + 0.008
-		elif map.mask[x][y] == map.maskimage.map_rgb((255,0,0,255)): # Insta death area
+			self.dy -= self.dy/5 + 0.02
+		elif pixel == map.maskimage.map_rgb((255,0,0,255)): # Insta death area
 			self.explode(map)
 		else:
 			if self.y-self.oldy != 0 or self.x-self.oldx != 0:
