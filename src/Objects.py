@@ -44,6 +44,10 @@ class Object(pygame.sprite.Sprite):
 		self.bounce = False
 		self.hitsWater = False
 		self.floats = False
+		
+		self.objectCollision = False
+		self.objectCollisionSpeed = None,None
+		self.objectCollisionExplode = False
 
 		self.thrust = False
 		self.rotate = 0
@@ -178,6 +182,21 @@ class Object(pygame.sprite.Sprite):
 				self.explode(map)
 		elif self.onGroundExplode:
 			self.explode(map)
+			
+			
+			
+	def onObjectHit(self,map,object):
+		if object.objectCollisionSpeed == (None,None):
+			self.dx,self.dy=(self.dx+object.dx)/2,(self.dy+object.dy)/2
+			self.objectCollisionSpeed=-(self.dx+object.dx)/2,-(self.dy+object.dy)/2
+		else:
+			self.dx,self.dy=object.objectCollisionSpeed
+			object.objectCollisionSpeed =None,None
+		if self.objectCollisionExplode:
+			self.explode(map)
+		if object.objectCollisionExplode:
+			self.explode(object,map)
+
 
 	def onWaterHit(self,map,x,y): # Triggered on water hit
 		if self.hitsWater:
@@ -252,6 +271,14 @@ class Object(pygame.sprite.Sprite):
 							if distance < (self.size + player.ship.size)**2:
 								shipHit = True
 								self.onShipHit(map,player.ship)
+								
+				if self.objectCollision and not(self.isShip):
+					for object in self.game.objects:
+						if object.objectCollision:
+							if self != object:
+								distance = (object.x-self.x)**2 + (object.y-self.y)**2
+								if distance < (self.size + object.size)**2:
+									self.onObjectHit(map,object)
 
 	def move(self): # Move
 		self.oldx = self.x # Save old location
@@ -678,6 +705,8 @@ class Mine(Object):
 		self.explosionParticleFactor = 2
 		self.size = 10
 		self.floats = True
+		self.objectCollision =True
+		self.objectCollisionExplode = True
 
 		self.sprite("mine.png")
 
@@ -690,6 +719,7 @@ class Cannonball(Object):
 		self.size = 4
 		self.explosionSizeFactor = 3
 		self.explosionParticleFactor = 3
+		self.objectCollision =True
 
 		self.airResistance = 5
 
@@ -706,6 +736,8 @@ class Missile(Object):
 		self.target = None
 
 		self.acceleration = 0.085
+		self.objectCollision =True
+		self.objectCollisionExplode = True
 
 		self.sprite("missile.png")
 
@@ -811,7 +843,10 @@ class Bomb(Object):
 
 		self.airResistance = 10
 		self.explosionCollision = False
-
+		
+		self.objectCollision =True
+		self.objectCollisionExplode = True
+		
 		self.sprite("bomb.png")
 		self.rotateWithSpeed = True
 
@@ -825,6 +860,9 @@ class Dirtball(Object):
 
 		self.airResistance = 5
 		self.rotate = random.uniform(-3,3)
+		
+		self.objectCollision = True
+		self.objectCollisionExplode = True
 
 		self.sprite("dirt.png")
 
@@ -882,6 +920,8 @@ class Larpa(Object):
 		self.explosionSizeFactor = 1.5
 		self.explosionParticleFactor = 0
 		self.bounce = True
+		
+		self.objectCollision =True
 
 	def check(self, map):
 		if self.drop == 4:
@@ -916,6 +956,8 @@ class Banana(Object):
 
 		self.explosionCollision = False
 		self.onShipExplode = False
+		
+		self.objectCollision =True
 
 		self.size = 2
 
@@ -931,6 +973,8 @@ class Bullet(Object):
 
 		self.explosionCollision = False
 		self.onShipExplode = False
+		
+		self.objectCollision =True
 
 		self.size = 2
 		self.onShipDamage = 6
@@ -955,6 +999,9 @@ class RifleBullet(Object):
 
 		self.explosionCollision = False
 		self.onShipExplode = False
+		
+		self.objectCollision =True
+		self.objectCollisionExplode = True
 
 		self.size = 2
 		self.onShipDamage = 50
@@ -966,6 +1013,9 @@ class WaterBall(Object):
 		self.explosionCollision = False
 		self.airResistance = 5
 		self.hitsWater = True
+		
+		self.objectCollision =True
+		self.objectCollisionExplode = True
 
 		self.sprite("waterball.png")
 
@@ -1001,6 +1051,8 @@ class Grenade(Object):
 		self.explosionParticleFactor = 5
 		self.lifetime = 150
 		self.bounce = True
+		
+		self.objectCollision =True
 
 	def check(self, map):
 		if self.lifetime == 0:
