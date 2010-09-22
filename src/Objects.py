@@ -46,7 +46,7 @@ class Object(pygame.sprite.Sprite):
 		self.floats = False
 		
 		self.objectCollision = False
-		self.objectCollisionSpeed = None,None
+		self.objectCollisionDelay = 0
 		self.objectCollisionExplode = False
 
 		self.thrust = False
@@ -186,16 +186,18 @@ class Object(pygame.sprite.Sprite):
 			
 			
 	def onObjectHit(self,map,object):
-		if object.objectCollisionSpeed == (None,None):
-			self.dx,self.dy=(self.dx+object.dx)/2,(self.dy+object.dy)/2
-			self.objectCollisionSpeed=-(self.dx+object.dx)/2,-(self.dy+object.dy)/2
+		if self.objectCollisionDelay == 0:
+			self.dx,self.dy,object.dx,object.dy = object.dx,object.dy,self.dx,self.dy #expecting same mass and alvays elastic collision
+			self.objectCollisionDelay = 1
+			object.objectCollisionDelay = 1
+			if self.objectCollisionExplode:
+				self.explode(map)
+			if object.objectCollisionExplode:
+				object.explode(map)
+
 		else:
-			self.dx,self.dy=object.objectCollisionSpeed
-			object.objectCollisionSpeed =None,None
-		if self.objectCollisionExplode:
-			self.explode(map)
-		if object.objectCollisionExplode:
-			self.explode(object,map)
+			self.objectCollisionDelay -= 1
+
 
 
 	def onWaterHit(self,map,x,y): # Triggered on water hit
