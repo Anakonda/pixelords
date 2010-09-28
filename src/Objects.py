@@ -182,12 +182,12 @@ class Object(pygame.sprite.Sprite):
 				self.explode(map)
 		elif self.onGroundExplode:
 			self.explode(map)
-			
-			
-			
+
+
 	def onObjectHit(self,map,object):
-		if self.objectCollisionDelay == 0:
-			self.dx,self.dy,object.dx,object.dy = object.dx,object.dy,self.dx,self.dy #expecting same mass and alvays elastic collision
+		if self.objectCollisionDelay <= 0: #v1 = (u1(m1-m2)+2*m2u2)/(m1+m2) v2 = (u2(m2-m1)+2*m1u1)/(m1+m2)
+			self.dx,object.dx=(self.dx*(self.size-object.size)+2*object.size*object.dx)/(self.size+object.size),(object.dx*(object.size-self.size)+2*self.size*self.dx)/(self.size+object.size)
+			self.dy,object.dy=(self.dy*(self.size-object.size)+2*object.size*object.dy)/(self.size+object.size),(object.dy*(object.size-self.size)+2*self.size*self.dy)/(self.size+object.size)
 			self.objectCollisionDelay = 1
 			object.objectCollisionDelay = 1
 			if self.objectCollisionExplode:
@@ -197,6 +197,7 @@ class Object(pygame.sprite.Sprite):
 
 		else:
 			self.objectCollisionDelay -= 1
+			object.objectCollisionDelay -= 1
 
 
 
@@ -976,7 +977,7 @@ class Bullet(Object):
 		self.explosionCollision = False
 		self.onShipExplode = False
 		
-		self.objectCollision =True
+		self.objectCollision = True
 
 		self.size = 2
 		self.onShipDamage = 6
@@ -992,6 +993,15 @@ class Shard(Object):
 
 		self.size = random.randint(2,3)
 		self.onShipDamage = 2*self.size
+
+		self.collisionTimer = 120
+
+	def check(self,map):
+		if self.collisionTimer >= 0:
+			self.collisionTimer -= 1
+		else:
+			self.objectCollision = True
+		
 
 class RifleBullet(Object):
 	def init(self):
